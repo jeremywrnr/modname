@@ -14,7 +14,7 @@ task :clean do
 	system "rm -fv *.gem"
 end
 
-task :push => :clean, :build do
+task :push => [:clean, :build] do
 	system "gem push #{g}-#{v}.gem"
 end
 
@@ -25,7 +25,9 @@ end
 task :default  => :spec
 
 RSpec::Core::RakeTask.new(:spec) do |rake|
-  rake.rspec_opts = '--format documentation'
   rake.verbose = true
+  rake.rspec_opts = '--color '
+  rake.rspec_opts << '--format documentation'
+  #rake.rspec_opts << '--format progress'
 end
 
