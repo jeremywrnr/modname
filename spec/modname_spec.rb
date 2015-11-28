@@ -6,11 +6,11 @@ require "spec_helper"
 
 describe Modname do
   def run(str)
-    Modname.new(str.split)
+    Modname.new str.split 
   end
 
   def runblock(str)
-    lambda { run(str) }
+    lambda { run str  }
   end
 
   it "should exit cleanly when no arguments are given" do

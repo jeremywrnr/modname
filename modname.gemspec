@@ -9,6 +9,6 @@ Gem::Specification.new do |g|
   g.email       = 'jeremywrnr@gmail.com'
   g.license     = 'MIT'
   g.executables = ['modname']
-  g.files       = ['lib/modname.rb']
+  g.files       = ['lib/modname.rb', 'lib/modder.rb']
   g.add_development_dependency 'rspec', '~> 3.3', '>= 3.3.2'
 end
