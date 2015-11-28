@@ -1,0 +1,12 @@
+#!/usr/bin/env ruby
+
+
+require_relative "../lib/modname"
+
+
+# modname by jeremy warner
+# easily rename groups of file with ruby regex.
+
+
+Modname.new(ARGV)
+
