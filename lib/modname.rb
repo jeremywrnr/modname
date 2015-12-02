@@ -26,6 +26,8 @@ class Modname
   end
 end
 
+Dir.entries(Dir.pwd)
+
 
 # large constant strings
 
