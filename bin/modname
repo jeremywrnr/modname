@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
 
-require_relative '../lib/banner'
-require_relative '../lib/modder'
-require_relative '../lib/modname'
+require_relative "../lib/banner"
+require_relative "../lib/modder"
+require_relative "../lib/modname"
 
 
 # modname by jeremy warner

@@ -1,15 +1,32 @@
+# termcolors
+class String
+  def colorize(color, mod)
+    "\033[#{mod};#{color};49m#{self}\033[0;0m"
+  end
+
+  def reset() colorize(0,0) end
+  def ugn()  colorize(32,4) end
+  def blu()  colorize(34,0) end
+  def yel()  colorize(33,0) end
+  def grn()  colorize(32,0) end
+  def red()  colorize(31,0) end
+end
+
+# define module
 module Modname
-  HELP_BANNER = <<-EOS
+end
+
+Modname::HELP_BANNER = <<-EOS
 Usage: modname [opts] <mods> [folder]
 
 modname - a tool to rename files
     -e | change file extensions
     -m | modify filename pattern
     -h | show more modname help
-  EOS
+EOS
 
-  VHELP_BANNER = <<-EOS
-  #{Modname::HELP_BANNER}
+Modname::VHELP_BANNER = <<-EOS
+#{Modname::HELP_BANNER}
     -f | force run; don't pre-check
     -r | run modname recursively
 
@@ -18,13 +35,14 @@ modifiers
     => only look at changing *.type files
 
     -e <old> <new>
-    => change file extensions
+    => change file extensions, <old> to <new>
 
-    -m <match-regex>
-    => modify a filename, based on a regex.
+    -m <pattern>
+    => delete a pattern from filenames
 
-        If -t option is not specified, delete <match> from name.
-        [-t <transform-regex>]
+    -m <pattern> -t <pattern>
+    => modify a pattern in filenames
+
 
 examples
   file extensions
@@ -36,5 +54,5 @@ examples
     modname -m hello -t byebye => replace hello with byebye
 
 note: <required> [optional]
-  EOS
-end
+EOS
+

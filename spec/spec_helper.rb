@@ -1,6 +1,6 @@
-require_relative '../lib/banner'
-require_relative '../lib/modder'
-require_relative '../lib/modname'
+require_relative "../lib/banner"
+require_relative "../lib/modder"
+require_relative "../lib/modname"
 
 
 # Redirect stderr and stdout while testing

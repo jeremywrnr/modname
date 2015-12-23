@@ -1,7 +1,7 @@
-# parse modname's command line args
+# parse modname"s command line args
 
 module Modname
-  VERSION = '0.1'
+  VERSION = "0.1"
 end
 
 # module methods
@@ -12,12 +12,12 @@ class << Modname
     opts = parse args
     cmd = opts[:cmd]
     case cmd
-    when 'help'
+    when "help"
       pexit Modname::VHELP_BANNER, 0
     when nil
       pexit Modname::HELP_BANNER, 0
     else
-      puts 'Unrecognized command:' + cmd
+      puts "Unrecognized command:" + cmd
       pexit Modname::HELP_BANNER, 1
     end
   end
@@ -28,14 +28,14 @@ class << Modname
     loop do # each arg
       opt = args.shift
       case opt
-      when '-h', '--help'
-        opts[:cmd] = 'help'
-      when '-r'
+      when "-h", "--help"
+        opts[:cmd] = "help"
+      when "-r"
         opts[:recurse] = true
       when nil # end of list
         break
       else # unrecognized option
-        puts 'Unrecognized option:' + opt
+        puts "Unrecognized option:" + opt
         pexit Modname::HELP_BANNER, 1
       end
     end
