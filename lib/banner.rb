@@ -1,33 +1,40 @@
 module Modname
   HELP_BANNER = <<-EOS
-modname - a tool to rename files
-     -m | modify filename on regex
-     -h | show more modname help
-
 Usage: modname [opts] <mods> [folder]
 
-Transformations will be shown before they are executed, to double check
-the transitition is what you were intending. Prevent this with -f.
+modname - a tool to rename files
+    -e | change file extensions
+    -m | modify filename pattern
+    -h | show more modname help
   EOS
 
   VHELP_BANNER = <<-EOS
   #{Modname::HELP_BANNER}
-Options:
-    -f        | force run; don't pre-check
-    -r        | run modname recursively
-    -t <type> | only change *.type files
+    -f | force run; don't pre-check
+    -r | run modname recursively
 
-Modifiers:
-    -s | name files sequentially
-    -d | name files from edit date-times
-    -e | change file extensions <old> <new>
-    -m | modify a filename, based on a regex.
+modifiers
+    -t <type>
+    => only look at changing *.type files
+
+    -e <old> <new>
+    => change file extensions
+
+    -m <match-regex>
+    => modify a filename, based on a regex.
+
         If -t option is not specified, delete <match> from name.
-        <match-regex> [-t <transform-regex>]
+        [-t <transform-regex>]
 
-Examples:
-    modname -m hello -t byebye => replace hello with byebye
-    modname -m hello => deletes hello from all filenames
+examples
+  file extensions
     modname -e txt md => move all txt files to markdown
+    modname -e mov mp4 => move all mov files to mp4
+
+  file names
+    modname -m hello => deletes hello from all filenames
+    modname -m hello -t byebye => replace hello with byebye
+
+note: <required> [optional]
   EOS
 end
