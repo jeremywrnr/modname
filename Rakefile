@@ -11,6 +11,7 @@ task :build do
 end
 
 task :clean do
+  puts 'Cleaning...'
 	system "rm -fv *.gem"
 end
 
@@ -22,7 +23,7 @@ task :dev do
   system "filewatcher '**/*.rb' 'clear && rake'"
 end
 
-task :default  => :spec
+task :default => :spec
 
 RSpec::Core::RakeTask.new(:spec) do |rake|
   rake.verbose = true
