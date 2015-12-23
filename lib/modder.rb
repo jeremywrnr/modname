@@ -53,10 +53,5 @@ class << Modder
   def extension(match, trans)
     # todo
   end
-
-  # rename files sequentially (a1, a2, a3, ...)
-  def sequential(match)
-    # todo
-  end
 end # Modder self
 
