@@ -3,7 +3,7 @@
 require "spec_helper"
 
 describe Modname do
-  def run(str) Modname.run str.split end
+  def run(str) Modname::Driver.new.run str.split end
   def runblock(str = "") lambda { run str  } end
 
   before "mute stdout and stderr" do

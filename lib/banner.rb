@@ -1,15 +1,15 @@
 # termcolors
 class String
-  def colorize(color, mod)
+  def color(color, mod)
     "\033[#{mod};#{color};49m#{self}\033[0;0m"
   end
 
-  def reset() colorize(0,0) end
-  def ugn()  colorize(32,4) end
-  def blu()  colorize(34,0) end
-  def yel()  colorize(33,0) end
-  def grn()  colorize(32,0) end
-  def red()  colorize(31,0) end
+  def reset() color(0,0) end
+  def ugn() color(32,4) end
+  def blu() color(34,0) end
+  def yel() color(33,0) end
+  def grn() color(32,0) end
+  def red() color(31,0) end
 end
 
 # define module

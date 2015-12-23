@@ -14,7 +14,6 @@ RSpec.configure do |config|
   end
 end
 
-
 # Redirect stderr and stdout for testing
 def mute
   RSpec.configure do |config|
@@ -27,7 +26,6 @@ def mute
     end
   end
 end
-
 
 # Reallow stderr and stdout for testing
 def unmute
