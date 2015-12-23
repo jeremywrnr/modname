@@ -1,44 +1,62 @@
 # modname helper
 
+module Modder
+  @@tranfer = {}
+end
 
-class Modder
+# module methods
+class << Modder
 
-	@@tranfer = {}
+  # double check transformations
+  def confirm
+    print 'Are these changes ok? [yN] '
+    (gets.chomp!).downcase[0] == 'y'
+  end
 
-	def initialize
-	end
+  # show the status of current files
+  def status
+    puts 'Planned file actions:'
+    @@tranfer.each do |o, n|
+      puts "\t#{o} -> #{n}"
+    end
+  end
 
-	# show the status of current files
-	def status
-	end
+  # actually rename the files
+  def transfer
+    @@tranfer.each do |o, n|
+      # todo move the file
+    end
+  end
 
-	# double check transformations
-	def confirm
-	end
+  # rename files based on regular expressions
+  def rename_regex(match, trans)
+    Dir.entries(Dir.pwd).each do |file|
+      new = file.replace(match, trans)
+      next if new == file # no changes
+      @@transfer[old] = file
+    end
 
-	# rename files based on regular expressions
-	def rename_regex(match, trans)
-		puts "Planned file actions:\n\n";
-		Dir.entries(Dir.pwd).each do |file|
-			new = file.replace(match, trans)
-			next if new == file
-			puts "\t#{old} -> #{file}"
-			transfer[old] = file
-		end
+    # warn if no actions to take
+    pexit 'No matches for #{match}', 1 if transfer.keys.nil?
 
-		# warn if no actions to take
-		if transfer.keys.nil?
-			pexit "No matches for #{match}", 1
-		else
-			confirm
-		end
+    # print changes
+    Modder.status
 
-		# change one file extension to another's type
-		def rename_ext
-		end
+    if Modder.confirm
+      Modder.transfer
+    else
+      puts 'No modifications done.'
+    end
+  end
 
-		# rename files sequentially (a1, a2, a3, ...)
-		def rename_seq
-		end
-	end
+  # change one file extension to another's type
+  def rename_ext
+    # todo
+  end
+
+  # rename files sequentially (a1, a2, a3, ...)
+  def rename_seq
+    # todo
+  end
+end # Modder self
 

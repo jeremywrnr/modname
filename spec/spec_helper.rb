@@ -1,3 +1,4 @@
+require_relative '../lib/modder'
 require_relative '../lib/modname'
 
 
