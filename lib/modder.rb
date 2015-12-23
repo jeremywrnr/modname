@@ -29,7 +29,7 @@ class << Modder
   end
 
   # rename files based on regular expressions
-  def rename_regex(match, trans)
+  def regex(match, trans)
     Dir.entries(Dir.pwd).each do |file|
       new = file.replace(match, trans)
       next if new == file # no changes
@@ -50,12 +50,12 @@ class << Modder
   end
 
   # change one file extension to another's type
-  def rename_ext
+  def extension(match, trans)
     # todo
   end
 
   # rename files sequentially (a1, a2, a3, ...)
-  def rename_seq
+  def sequential(match)
     # todo
   end
 end # Modder self
