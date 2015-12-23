@@ -1,4 +1,4 @@
-module Modder
+module Modname
   HELP_BANNER = <<-EOS
 modname - a tool to rename files
      -m | modify filename on regex
@@ -11,7 +11,7 @@ the transitition is what you were intending. Prevent this with -f.
   EOS
 
   VHELP_BANNER = <<-EOS
-  #{HELP_BANNER}
+  #{Modname::HELP_BANNER}
 Options:
     -f        | force run; don't pre-check
     -r        | run modname recursively
