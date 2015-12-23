@@ -11,6 +11,8 @@ a versatile file naming tool.
 
 easily rename groups of files with regex replacements.
 
+also supports easily changing file extensions.
+
 
 ## setup
 
