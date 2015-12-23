@@ -1,3 +1,4 @@
+require "FileUtils"
 require_relative "../lib/banner"
 require_relative "../lib/modder"
 require_relative "../lib/modname"

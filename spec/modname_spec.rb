@@ -23,6 +23,18 @@ describe Modname do
 end
 
 describe Modder do
+  before "create test files" do
+    Dir.mkdir("testing")
+    Dir.chdir("testing")
+    File.write("1.txt", "1")
+    File.write("2.txt", "2")
+  end
+
+  after "manipulating the workspace, clean cn folder" do
+    Dir.chdir(File.join(Dir.pwd, ".."))
+    FileUtils.rm_rf("testing")
+  end
+
   it "should delete by regex" do
   end
 
