@@ -6,6 +6,10 @@ describe Modname do
   def run(str) Modname.run str.split end
   def runblock(str = "") lambda { run str  } end
 
+  before "mute stdout and stderr" do
+    mute # block output
+  end
+
   it "should exit cleanly when no arguments are given" do
     runblock.should exit_with_code 0
   end

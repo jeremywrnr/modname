@@ -1,11 +1,11 @@
-# parse modname"s command line args
+# parse modname's command line args
 
-module Modname
+class Modname::Driver
   VERSION = "0.1"
-end
-
-# module methods
-class << Modname
+  include Modder
+  def initialize
+    @transfer = {}
+  end
 
   # parse user arguments
   def run(args)

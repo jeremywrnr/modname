@@ -1,28 +1,40 @@
+# helper for rspec
+
+
 require "FileUtils"
 require_relative "../lib/banner"
 require_relative "../lib/modder"
 require_relative "../lib/modname"
 
 
-# Redirect stderr and stdout while testing
-SILENT = true
-if SILENT
+# Allow new and old Rspec syntax
+RSpec.configure do |config|
+  config.expect_with(:rspec) do |c|
+    c.syntax = [:should, :expect]
+  end
+end
+
+
+# Redirect stderr and stdout for testing
+def mute
   RSpec.configure do |config|
-    original_stderr = $stderr
-    original_stdout = $stdout
-    config.before(:all) do
-      $stderr = File.open(File::NULL, "w")
+    unless $muted
+      $original_stdout = $stdout
+      $original_stderr = $stderr
       $stdout = File.open(File::NULL, "w")
+      $stderr = File.open(File::NULL, "w")
+      $muted = true
     end
+  end
+end
 
-    config.after(:all) do
-      $stderr = original_stderr
-      $stdout = original_stdout
-    end
 
-    # allow old and new RSPEC syntax
-    config.expect_with(:rspec) do |c|
-      c.syntax = [:should, :expect]
+# Reallow stderr and stdout for testing
+def unmute
+  RSpec.configure do |config|
+    if $muted
+      $stdout = $original_stdout
+      $stderr = $original_stderr
     end
   end
 end
