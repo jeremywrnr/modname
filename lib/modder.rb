@@ -57,11 +57,10 @@ class << Modder
     (gets.chomp!).downcase[0] == "y"
   end
 
-  # return a list of files we can work on
+  # return a list of files to examine
   def files
     Dir.entries(Dir.pwd).select do |file|
       File.file? file # handle files
-
       # todo handle recursion
     end
   end
@@ -69,8 +68,12 @@ class << Modder
 
   # show the status of current files
   def status(transfer)
-    puts "Planned file actions:".green
-    transfer.each { |o, n| puts "\t#{o} -> #{n.green}" }
+    if transfer.empty?
+      "No matches found.".yellow
+    else
+      puts "Planned file actions:".green
+      transfer.each { |o, n| puts "\t#{o} -> #{n.green}" }
+    end
   end
 
   # rename all files
@@ -83,7 +86,6 @@ class << Modder
   # highest level wrapper
   def finish(transfer)
     # warn if no actions to take after processing the files
-    pexit "No matches for *.#{match}", 1 if transfer.empty?
 
     # print current changes
     Modder.status transfer
@@ -115,13 +117,13 @@ class << Modder
   end
 
   # get all extensions to change
-  def undercase_ext_get(ext = "")
+  def undercase_ext_get(ext)
     transfer = Hash.new
     allexts = ext.empty?
     Modder.files.each do |file|
       ext = file.split(".").last if allexts
 
-      new = file.sub /#{ext}$/i, ext
+      new = file.sub /#{ext}$/i, ext.downcase
       next if new == file # no changes
 
       transfer[file] = new
@@ -135,8 +137,7 @@ class << Modder
   # not case sensitive and therefore wont distiniguish between HI and hi.
   # to get around this, we can set HI to HI.hash, then set HI.hash to hi
   def undercase_ext_set(ext, transfer)
-    # warn if no actions to take after processing the files
-    puts "No matches for *.#{ext.empty?? "*" : ext}".red if transfer.empty?
+    puts "Lowering extension: ".green + (ext.empty?? "*" : ext)
 
     # confirm current changes
     Modder.status transfer
@@ -146,9 +147,9 @@ class << Modder
 
       # create hash temp map
       transfer.each do |k, v|
-        tempfile = v.hash.abs.to_s
-        temp[k] = tempfile
+        tempfile = (v.hash * v.object_id).abs.to_s
         final[tempfile] = v
+        temp[k] = tempfile
       end
 
       Modder.execute temp
