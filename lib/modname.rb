@@ -1,8 +1,17 @@
 # parse modname's command line args
 
 require "colored"
-require_relative "./banner"
-require_relative "./modder"
+require "modname/banner"
+require "modname/modder"
+require "modname/version"
+
+
+module Modname
+  class << self # defining Modname.run
+    def run(*x) Driver.new.run x end
+  end
+end
+
 
 class Modname::Driver
   VERSION = "0.1"
@@ -37,6 +46,7 @@ class Modname::Driver
   # parse out arguments
   def parse(args)
     opts = {}
+    opts[:args] = []
     loop do # each arg
       opt = args.shift
       case opt
@@ -50,9 +60,11 @@ class Modname::Driver
         opts[:cmd] = "ext"
       when nil # end of list
         break
-      else # unrecognized option
+      when /^-/ # unrecognized option
         puts "Unrecognized option:" + opt
         pexit Modname::HELP_BANNER, 1
+      else # command argument
+        opts[:args] << opt
       end
     end
 

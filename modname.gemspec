@@ -1,7 +1,7 @@
 lib = File.expand_path("../lib/", __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
-require "modname-version"
+require "modname/version"
 
 Gem::Specification.new do |g|
   g.author      = "Jeremy Warner"

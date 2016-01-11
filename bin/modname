@@ -1,12 +1,9 @@
 #!/usr/bin/env ruby
 
-
-require_relative "../lib/modname"
-
+require "modname"
 
 # modname by jeremy warner
-# easily rename groups of file with ruby regex.
-
+# easily rename files/extensions with ruby regex.
 
 Modname.run(ARGV)
 
