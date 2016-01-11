@@ -1,8 +1,8 @@
 # parse modname's command line args
 
 require "colored"
-require_relative "banner"
-require_relative "modder"
+require_relative "./banner"
+require_relative "./modder"
 
 class Modname::Driver
   VERSION = "0.1"
