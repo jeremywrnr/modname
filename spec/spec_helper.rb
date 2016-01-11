@@ -1,44 +1,23 @@
 # helper for rspec
 
-
-require "FileUtils"
-require_relative "../lib/banner"
-require_relative "../lib/modder"
+require "FileUtils" # test cleanup
 require_relative "../lib/modname"
+
+
+# hacky mutable puts
+$muted = true
+def puts(*x)
+  $muted? x : x.flat_map { |y| print y + "\n" }
+end
 
 
 # Allow new and old Rspec syntax
 RSpec.configure do |config|
-  config.expect_with(:rspec) do |c|
-    c.syntax = [:should, :expect]
-  end
-end
-
-# Redirect stderr and stdout for testing
-def mute
-  RSpec.configure do |config|
-    unless $muted
-      $original_stdout = $stdout
-      $original_stderr = $stderr
-      $stdout = File.open(File::NULL, "w")
-      $stderr = File.open(File::NULL, "w")
-      $muted = true
-    end
-  end
-end
-
-# Reallow stderr and stdout for testing
-def unmute
-  RSpec.configure do |config|
-    if $muted
-      $stdout = $original_stdout
-      $stderr = $original_stderr
-    end
-  end
+  config.expect_with(:rspec) { |c| c.syntax = [:should, :expect] }
 end
 
 
-# Check exit codes with rspec
+# Check program exit codes with rspec
 RSpec::Matchers.define :exit_with_code do |code|
   def supports_block_expectations?() true end
   actual = nil

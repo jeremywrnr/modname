@@ -1,17 +1,3 @@
-# termcolors
-class String
-  def color(color, mod)
-    "\033[#{mod};#{color};49m#{self}\033[0;0m"
-  end
-
-  def reset() color(0,0) end
-  def ugn() color(32,4) end
-  def blu() color(34,0) end
-  def yel() color(33,0) end
-  def grn() color(32,0) end
-  def red() color(31,0) end
-end
-
 # define module
 module Modname
 end

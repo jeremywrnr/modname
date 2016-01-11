@@ -1,9 +1,9 @@
-# modname helper
-# o-old, n-new
+# modder, the modname helper
+# generally: o-old, n-new
 
 
-# any module include modder should expose @transfer
-# hash of file transfers waiting to occur.
+# any module including modder should implement:
+# @transfer => hash of file transfers to occur
 
 
 # extensions
@@ -11,9 +11,9 @@ module Modder
   # rename files based on regular expressions
   def regex(match, trans = "")
     Modder.files.each do |file|
-      new = file.gsub match, trans
+      new = file.sub Regexp.new(match), trans
 
-      next if new == file # no changes
+      next if (new == file || new == "") # no changes
 
       @transfer[file] = new
     end
@@ -21,7 +21,7 @@ module Modder
     # warn if no actions to take after processing the files
     pexit "No matches for #{match}", 1 if @transfer.keys.nil?
 
-    # print changes
+    # print current changes
     Modder.status @transfer
 
     if Modder.confirm
@@ -59,10 +59,9 @@ class << Modder
 
   # show the status of current files
   def status(transfer)
-    puts "Planned file actions:".grn
-    transfer.each do |o, n|
-      puts "\t#{o} -> #{n.grn}"
-    end
+    # todo handle empty transfer hash
+    puts "Planned file actions:".green
+    transfer.each { |o, n| puts "\t#{o} -> #{n.green}" }
   end
 
   # rename all files
@@ -73,11 +72,11 @@ class << Modder
   # try to rename a given file
   def rename(o, n)
     begin
-      exist = "#{'Error:'.red} target file #{n.grn} already exists"
+      exist = "#{'Error:'.red} target file #{n.green} already exists"
       (File.exist? n) ? raise(exist) : File.rename(o, n)
 
     rescue => e
-      puts "#{'Error:'.red} could not move #{o.red} to #{n.grn}"
+      puts "#{'Error:'.red} could not move |#{o.red}| to |#{n.green}|"
       puts e.message
     end
   end

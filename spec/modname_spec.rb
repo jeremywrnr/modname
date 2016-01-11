@@ -6,8 +6,8 @@ describe Modname do
   def run(str) Modname::Driver.new.run str.split end
   def runblock(str = "") lambda { run str  } end
 
-  before "mute stdout and stderr" do
-    mute # block output
+  before "muted help output" do
+    $muted = true
   end
 
   it "should exit cleanly when no arguments are given" do

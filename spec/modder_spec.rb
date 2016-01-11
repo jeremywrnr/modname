@@ -1,24 +1,29 @@
-# rspec unit testing for modder
-
+# modder rspec unit testing
 
 require "spec_helper"
 
-
-# dont prompt while testing
-def Modder.confirm() true end
-unmute # allow output
+# no prompt for test
+def Modder.confirm
+  true
+end
 
 
 describe Modder do
-  def run() Modname::Driver.new end
+  # getting a class instance of modname
+  def run
+    Modname::Driver.new
+  end
 
-  before "create test files" do
+  # getting all files in the current directory
+  def files
+    Dir.entries(Dir.pwd).select { |f| File.file? f }
+  end
+
+  before "setup test directory" do
+    $muted = true
     @dir = "testing"
     FileUtils.rm_rf @dir if Dir.exist? @dir
-    Dir.mkdir @dir
-    Dir.chdir @dir
-    File.write "hello_clean.txt", "a"
-    File.write "world_clean.txt", "b"
+    Dir.mkdir(@dir) && Dir.chdir(@dir)
   end
 
   after "remove test files" do
@@ -26,18 +31,74 @@ describe Modder do
     FileUtils.rm_rf @dir
   end
 
-  it "should delete by regex" do
-    puts `ls`
-    run.regex "_clean"
-    puts `ls`
-    expect(File.exist? "hello.txt").to be true
-    expect(File.exist? "world.txt").to be true
+
+  context "Filenames" do
+    before "create test files" do
+      File.write "hello_clean.txt", "a"
+      File.write "world_clean.txt", "b"
+    end
+
+    it "should delete by simple strings" do
+      run.regex "_clean"
+      nfiles = ["hello.txt", "world.txt"]
+      expect(files).to eq nfiles
+    end
+
+    it "should delete beginnings by regex" do
+      run.regex "^.{4}"
+      nfiles = ["d_clean.txt", "o_clean.txt"]
+      expect(files).to eq nfiles
+    end
+
+    it "should delete middles by regex" do
+      run.regex '_.*\.', "."
+      nfiles = ["hello.txt", "world.txt"]
+      expect(files).to eq nfiles
+    end
+
+    it "should delete ends by regex" do
+      run.regex '\..*$'
+      nfiles = ["hello_clean", "world_clean"]
+      expect(files).to eq nfiles
+    end
+
+    it "should transform by string" do
+      run.regex "clean", "dirty"
+      nfiles = ["hello_dirty.txt", "world_dirty.txt"]
+      expect(files).to eq nfiles
+
+      run.regex "dirty", "IMPURE"
+      nfiles = ["hello_IMPURE.txt", "world_IMPURE.txt"]
+      expect(files).to eq nfiles
+    end
+
+    it "should transform by regex" do
+      run.regex '_.*\.', ".bak."
+      nfiles = ["hello.bak.txt", "world.bak.txt"]
+      expect(files).to eq nfiles
+    end
   end
 
-  it "should transform by regex" do
-  end
 
-  it "should move file extensions" do
+  context "Extensions" do
+    before "create test files" do
+      $muted = false
+      File.write "a.TXT", "a"
+      File.write "b.JPG", "b"
+      File.write "c.TXT", "c"
+    end
+
+    it "should lowercase all file extensions by default" do
+      raise
+    end
+
+    it "should lowercase specific file extensions" do
+      raise
+    end
+
+    it "should move file extensions" do
+      raise
+    end
   end
 end
 
