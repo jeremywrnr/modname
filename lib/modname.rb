@@ -20,38 +20,42 @@ class Modname::Driver
     @transfer = {}
   end
 
-  # interface f-filename
-  # e-extension
-
   # parse user arguments
   def run(args)
     opts = parse args
     cmd = opts[:cmd]
     args.shift
+
     case cmd
     when "ext"
-      Modder.exts args
+      Modder.exts opts[:args]
+
     when "file"
-      Modder.regex args
+      Modder.regex opts[:args]
+
     when "help"
-      pexit Modname::VHELP_BANNER, 0
+      puts Modname::VHelpBanner
+
     when nil
-      pexit Modname::HELP_BANNER, 0
+      puts Modname::HelpBanner
+
     else
-      puts "Unrecognized command:" + cmd
-      pexit Modname::HELP_BANNER, 1
+      puts "Unrecognized command: ".red + cmd
+      puts Modname::HelpBanner
     end
   end
 
   # parse out arguments
   def parse(args)
-    opts = {}
-    opts[:args] = []
+    opts = {:args => []}
+
     loop do # each arg
       opt = args.shift
       case opt
       when "-h", "--help"
         opts[:cmd] = "help"
+      when "-f"
+        opts[:force] = true
       when "-r"
         opts[:recurse] = true
       when "f", "file"
@@ -62,8 +66,8 @@ class Modname::Driver
         break
       when /^-/ # unrecognized option
         puts "Unrecognized option:" + opt
-        pexit Modname::HELP_BANNER, 1
-      else # command argument
+        pexit Modname::HelpBanner, 1
+      else # argument to command
         opts[:args] << opt
       end
     end

@@ -79,6 +79,7 @@ describe Modder do
     end
 
     it "should handle recursion" do
+      $muted = false
       raise "todo"
     end
   end
@@ -86,7 +87,6 @@ describe Modder do
 
   context "Extensions" do
     before "create test files" do
-      $muted = false
       File.write "a.TXT", "a"
       File.write "b.JPG", "b"
       File.write "c.TXT", "c"
@@ -111,6 +111,7 @@ describe Modder do
     end
 
     it "should handle recursion" do
+      $muted = false
       raise "todo"
     end
   end

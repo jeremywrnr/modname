@@ -3,26 +3,28 @@
 require "spec_helper"
 
 describe Modname do
-  def run(str) Modname::Driver.new.run str.split end
+  def run(str = '') Modname::Driver.new.run str.split end
   def runblock(str = "") lambda { run str  } end
 
-  before "muted help output" do
+  before "mute program help output" do
     $muted = true
   end
 
-  it "should exit cleanly when no arguments are given" do
-    runblock.should exit_with_code 0
+  it "should show standard help when given no args" do
+    expect(run).to eq Modname::HelpBanner
   end
 
-  it "should exit cleanly when asking for more help" do
-    runblock("-h").should exit_with_code 0
-    runblock("--help").should exit_with_code 0
+  it "should advanced help when asked for more help" do
+    ["--help", "-h"].each do |help|
+      expect(run help).to eq Modname::VHelpBanner
+    end
   end
 
   it "should refuse unrecognized flags" do
-    runblock("-goo?-gaah??").should exit_with_code 1
-    runblock("-world -goo?").should exit_with_code 1
-    runblock("--hello").should exit_with_code 1
+    ["-goo?-gaah??", "-world -goo?", "--hello"].each do |cmd|
+      expect(run cmd).to
+      eq "Unrecognized command: ".red + cmd + Modname::HelpBanner
+    end
   end
 end
 
