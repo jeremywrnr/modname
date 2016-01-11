@@ -1,6 +1,8 @@
 require 'rake'
 require 'rspec/core/rake_task'
 
+task :default => :spec
+
 # gem name, version
 g = 'modname'
 v = '0.1'
@@ -11,7 +13,7 @@ task :build do
 end
 
 task :clean do
-  puts 'Cleaning...'
+  puts 'cleaning gems...'
 	system "rm -fv *.gem"
 end
 
@@ -22,8 +24,6 @@ end
 task :dev do
   system "filewatcher '**/*.rb' 'clear && rake'"
 end
-
-task :default => :spec
 
 RSpec::Core::RakeTask.new(:spec) do |rake|
   rake.verbose = true

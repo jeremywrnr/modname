@@ -1,7 +1,10 @@
-# helper for rspec
+lib = File.expand_path("../../lib/", __FILE__)
+$:.unshift lib unless $:.include?(lib)
 
-require "FileUtils" # test cleanup
-require_relative "../lib/modname"
+
+# helper for rspec
+require "modname"
+require "FileUtils"
 
 
 # hacky mutable puts
