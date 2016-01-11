@@ -3,7 +3,7 @@
 require "spec_helper"
 
 # no prompt for test
-def Modder.confirm
+def Modder.confirm?
   true
 end
 
@@ -77,6 +77,10 @@ describe Modder do
       nfiles = ["hello.bak.txt", "world.bak.txt"]
       expect(files).to eq nfiles
     end
+
+    it "should handle recursion" do
+      raise "todo"
+    end
   end
 
 
@@ -89,15 +93,21 @@ describe Modder do
     end
 
     it "should lowercase all file extensions by default" do
-      raise
+      run.exts # lowercases everything
+      nfiles = ["a.txt", "b.jpg", "c.txt"]
+      expect(files).to eq nfiles
     end
 
     it "should lowercase specific file extensions" do
-      raise
+      raise "todo"
     end
 
     it "should move file extensions" do
-      raise
+      raise "todo"
+    end
+
+    it "should handle recursion" do
+      raise "todo"
     end
   end
 end

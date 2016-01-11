@@ -11,6 +11,9 @@ class Modname::Driver
     @transfer = {}
   end
 
+  # interface f-filename
+  # e-extension
+
   # parse user arguments
   def run(args)
     opts = parse args
