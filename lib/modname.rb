@@ -18,7 +18,12 @@ class Modname::Driver
   def run(args)
     opts = parse args
     cmd = opts[:cmd]
+    args.shift
     case cmd
+    when "ext"
+      Modder.exts args
+    when "file"
+      Modder.regex args
     when "help"
       pexit Modname::VHELP_BANNER, 0
     when nil
@@ -39,6 +44,10 @@ class Modname::Driver
         opts[:cmd] = "help"
       when "-r"
         opts[:recurse] = true
+      when "f", "file"
+        opts[:cmd] = "file"
+      when "e", "ext"
+        opts[:cmd] = "ext"
       when nil # end of list
         break
       else # unrecognized option

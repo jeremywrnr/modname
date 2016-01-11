@@ -99,11 +99,15 @@ describe Modder do
     end
 
     it "should lowercase specific file extensions" do
-      raise "todo"
+      run.exts "txt" # lowercases text files
+      nfiles = ["a.txt", "b.JPG", "c.txt"]
+      expect(files).to eq nfiles
     end
 
     it "should move file extensions" do
-      raise "todo"
+      run.exts "JPG", "txt" # move to txt
+      nfiles = ["a.TXT", "b.txt", "c.TXT"]
+      expect(files).to eq nfiles
     end
 
     it "should handle recursion" do
