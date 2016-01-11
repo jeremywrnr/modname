@@ -47,26 +47,25 @@ class Modname::Driver
 
   # parse out arguments
   def parse(args)
-    opts = {:args => []}
+    opts = {:args => [], :err => [],
+            :force => false, :recurse => false}
 
-    loop do # each arg
-      opt = args.shift
+    args.each do |opt|
       case opt
-      when "-h", "--help"
-        opts[:cmd] = "help"
       when "-f"
         opts[:force] = true
       when "-r"
         opts[:recurse] = true
+      when "-h", "--help"
+        opts[:cmd] = "help"
       when "f", "file"
         opts[:cmd] = "file"
       when "e", "ext"
         opts[:cmd] = "ext"
-      when nil # end of list
-        break
       when /^-/ # unrecognized option
         puts "Unrecognized option:" + opt
-        pexit Modname::HelpBanner, 1
+        puts Modname::HelpBanner
+        opts[:err] << opt
       else # argument to command
         opts[:args] << opt
       end
