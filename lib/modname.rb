@@ -1,6 +1,7 @@
 # parse modname's command line args
 
 require "colored"
+
 require "modname/banner"
 require "modname/modder"
 require "modname/version"
@@ -8,7 +9,7 @@ require "modname/version"
 
 module Modname
   class << self # defining Modname.run
-    def run(*x) Driver.new.run x end
+    def run(x) Modder::Driver.new.run x end
   end
 end
 
@@ -63,7 +64,7 @@ class Modname::Driver
       when "e", "ext"
         opts[:cmd] = "ext"
       when /^-/ # unrecognized option
-        puts "Unrecognized option:" + opt
+        puts "Unrecognized option: ".red + opt
         puts Modname::HelpBanner
         opts[:err] << opt
       else # argument to command
