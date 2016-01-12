@@ -48,7 +48,7 @@ describe Modname do
       expect(p[:force]).to be true
     end
 
-    it "should stop on unrecognied flags" do
+    it "should stop on unrecognized flags" do
       p = parse "--goo" # generate hash
       expect(p[:err]).to eq ["--goo"]
     end

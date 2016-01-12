@@ -77,11 +77,6 @@ describe Modder do
       nfiles = ["hello.bak.txt", "world.bak.txt"]
       expect(files).to eq nfiles
     end
-
-    it "should handle recursion" do
-      $muted = false
-      raise "todo"
-    end
   end
 
 
@@ -109,8 +104,27 @@ describe Modder do
       nfiles = ["a.TXT", "b.txt", "c.TXT"]
       expect(files).to eq nfiles
     end
+  end
 
-    it "should handle recursion" do
+
+  context "Recursion" do
+    before "create more subfolders and files" do
+      Dir.mkdir "a"
+      File.write "a/hello_clean.txt", "a"
+      File.write "a/world_clean.txt", "b"
+
+      Dir.mkdir "b"
+      File.write "b/a.TXT", "a"
+      File.write "b/b.JPG", "b"
+      File.write "b/c.TXT", "c"
+    end
+
+    it "should handle extension execution" do
+      $muted = false
+      raise "todo"
+    end
+
+    it "should handle filename execution" do
       $muted = false
       raise "todo"
     end
