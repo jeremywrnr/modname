@@ -9,7 +9,7 @@ require "modname/version"
 
 module Modname
   class << self # defining Modname.run
-    def run(x) Modder::Driver.new.run x end
+    def run(x) Driver.new.run x end
   end
 end
 
@@ -29,10 +29,10 @@ class Modname::Driver
 
     case cmd
     when "ext"
-      Modder.exts opts[:args]
+      exts opts[:args]
 
     when "file"
-      Modder.regex opts[:args]
+      regex opts[:args]
 
     when "help"
       puts Modname::VHelpBanner

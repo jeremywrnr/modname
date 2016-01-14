@@ -10,7 +10,10 @@
 module Modder
 
   # rename files based on regular expressions
-  def regex(match, trans = "")
+  def regex(args)
+    trans = (args.length == 1 ? "" : args[1])
+    match = args.first
+
     Modder.files.each do |file|
       new = file.sub Regexp.new(match), trans
 
