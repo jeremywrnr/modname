@@ -10,7 +10,7 @@
 module Modder
 
   # rename files based on regular expressions
-  def regex(args)
+  def regex(args = [])
     trans = (args.length == 1 ? "" : args[1])
     match = args.first
 
@@ -28,7 +28,10 @@ module Modder
 
 
   # change one file extension to another's type
-  def exts(match = "", trans = "")
+  def exts(args = [])
+    trans = args.length <= 1 ? "" : args[1]
+    match = args.first.nil?? "" : args.first
+
     if match.empty? && trans.empty? # do all
       Modder.undercase_ext
 
