@@ -39,41 +39,41 @@ describe Modder do
     end
 
     it "should delete by simple strings" do
-      run.regex "_clean"
+      run.regex ["_clean"]
       nfiles = ["hello.txt", "world.txt"]
       expect(files).to eq nfiles
     end
 
     it "should delete beginnings by regex" do
-      run.regex "^.{4}"
+      run.regex ["^.{4}"]
       nfiles = ["d_clean.txt", "o_clean.txt"]
       expect(files).to eq nfiles
     end
 
     it "should delete middles by regex" do
-      run.regex '_.*\.', "."
+      run.regex ['_.*\.', "."]
       nfiles = ["hello.txt", "world.txt"]
       expect(files).to eq nfiles
     end
 
     it "should delete ends by regex" do
-      run.regex '\..*$'
+      run.regex ['\..*$']
       nfiles = ["hello_clean", "world_clean"]
       expect(files).to eq nfiles
     end
 
     it "should transform by string" do
-      run.regex "clean", "dirty"
+      run.regex ["clean", "dirty"]
       nfiles = ["hello_dirty.txt", "world_dirty.txt"]
       expect(files).to eq nfiles
 
-      run.regex "dirty", "IMPURE"
+      run.regex ["dirty", "IMPURE"]
       nfiles = ["hello_IMPURE.txt", "world_IMPURE.txt"]
       expect(files).to eq nfiles
     end
 
     it "should transform by regex" do
-      run.regex '_.*\.', ".bak."
+      run.regex ['_.*\.', ".bak."]
       nfiles = ["hello.bak.txt", "world.bak.txt"]
       expect(files).to eq nfiles
     end
