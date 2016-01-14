@@ -57,7 +57,7 @@ class << Modder
   # double check transformations
   def confirm?
     print "Are these changes ok? [yN] "
-    (gets.chomp!).downcase[0] == "y"
+    ($stdin.gets.chomp!).downcase[0] == "y"
   end
 
   # return a list of files to examine
