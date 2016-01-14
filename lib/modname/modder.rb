@@ -98,6 +98,7 @@ class << Modder
 
     if Modder.confirm?
       Modder.execute transfer
+      puts "Modifications complete."
     else
       puts "No modifications done."
     end
