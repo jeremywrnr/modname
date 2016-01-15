@@ -14,9 +14,10 @@ describe Modder do
     Modname::Driver.new
   end
 
-  # getting all files in the current directory
+  # recursively getting all files from the current directory (testing)
   def files
-    Dir.entries(Dir.pwd).select { |f| File.file? f }
+    Find.find(Dir.pwd).select { |f| File.file? f }
+    .map { |f| f.sub Dir.pwd << "/" , "" }
   end
 
   before "setup test directory" do
@@ -108,6 +109,10 @@ describe Modder do
 
 
   context "Recursion" do
+    class Modname::Driver
+      attr_accessor :options
+    end
+
     before "create more subfolders and files" do
       Dir.mkdir "a"
       File.write "a/hello_clean.txt", "a"
@@ -117,16 +122,30 @@ describe Modder do
       File.write "b/a.TXT", "a"
       File.write "b/b.JPG", "b"
       File.write "b/c.TXT", "c"
+
+      @tester = Modname::Driver.new
+      @tester.options = { :recurse => true }
     end
 
     it "should handle extension execution" do
-      $muted = false
-      raise "todo"
+      @tester.exts ["JPG", "txt"] # move to txt
+      nfiles = [ "a/hello_clean.txt", "a/world_clean.txt", "b/a.TXT", "b/b.txt", "b/c.TXT"]
+      expect(files).to eq nfiles
+
+      @tester.exts # move to lowercase
+      nfiles = [ "a/hello_clean.txt", "a/world_clean.txt", "b/a.txt", "b/b.txt", "b/c.txt"]
+      expect(files).to eq nfiles
     end
 
     it "should handle filename execution" do
       $muted = false
-      raise "todo"
+      @tester.regex ["c", "g"] # testing strings
+      nfiles = [ "a/hello_glean.txt", "a/world_glean.txt", "b/a.TXT", "b/b.JPG", "b/g.TXT"]
+      expect(files).to eq nfiles
+
+      @tester.regex ['_.*\.', "."]
+      nfiles = [ "a/hello.txt", "a/world.txt", "b/a.TXT", "b/b.JPG", "b/g.TXT"]
+      expect(files).to eq nfiles
     end
   end
 end

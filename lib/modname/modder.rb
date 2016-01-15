@@ -33,10 +33,10 @@ module Modder
     match = args.first.nil?? "" : args.first
 
     if match.empty? && trans.empty? # do all
-      Modder.undercase_ext
+      undercase_ext
 
     elsif trans.empty? # undercase one ext
-      Modder.undercase_ext match
+      undercase_ext match
 
     else # move match extension to targeted
       Modder.files(@options[:recurse]).each do |file|
@@ -54,8 +54,8 @@ module Modder
 
   # top level wrapper for exts
   def undercase_ext(ext = "")
-    transfer = undercase_ext_get ext, @options[:recurse]
-    undercase_ext_set ext, transfer
+    transfer = Modder.undercase_ext_get ext, @options[:recurse]
+    Modder.undercase_ext_set ext, transfer
   end
 end
 
@@ -128,7 +128,7 @@ class << Modder
   def undercase_ext_get(ext, recurse)
     transfer = Hash.new
     allexts = ext.empty?
-    Modder.files.each do |file|
+    Modder.files(recurse).each do |file|
       ext = file.split(".").last if allexts
 
       new = file.sub /#{ext}$/i, ext.downcase
@@ -162,6 +162,7 @@ class << Modder
 
       Modder.execute temp
       Modder.execute final
+      puts "Modifications complete."
     else
       puts "No modifications done."
     end
