@@ -138,7 +138,6 @@ describe Modder do
     end
 
     it "should handle filename execution" do
-      $muted = false
       @tester.regex ["c", "g"] # testing strings
       nfiles = [ "a/hello_glean.txt", "a/world_glean.txt", "b/a.TXT", "b/b.JPG", "b/g.TXT"]
       expect(files).to eq nfiles
