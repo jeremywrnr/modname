@@ -14,7 +14,7 @@ module Modder
     trans = (args.length == 1 ? "" : args[1])
     match = args.first
 
-    Modder.files.each do |file|
+    Modder.files(@options[:recurse]).each do |file|
       new = file.sub Regexp.new(match), trans
 
       next if (new == file || new == "") # no changes
@@ -39,7 +39,7 @@ module Modder
       Modder.undercase_ext match
 
     else # move match extension to targeted
-      Modder.files.each do |file|
+      Modder.files(@options[:recurse]).each do |file|
         new = file.sub /#{match}$/, trans
 
         next if new == file # no changes
@@ -50,6 +50,12 @@ module Modder
       # confirm + execute
       Modder.finish @transfer
     end
+  end
+
+  # top level wrapper for exts
+  def undercase_ext(ext = "")
+    transfer = undercase_ext_get ext, @options[:recurse]
+    undercase_ext_set ext, transfer
   end
 end
 
@@ -64,10 +70,11 @@ class << Modder
   end
 
   # return a list of files to examine
-  def files
-    Dir.entries(Dir.pwd).select do |file|
-      File.file? file # handle files
-      # todo handle recursion
+  def files(recurse = false)
+    if recurse
+      Find.find(Dir.pwd).select { |f| File.file? f }
+    else
+      Dir.entries(Dir.pwd).select { |f| File.file? f }
     end
   end
 
@@ -117,21 +124,15 @@ class << Modder
   end
 
 
-  # top level wrapper for exts
-  def undercase_ext(ext = "")
-    transfer = undercase_ext_get ext
-    undercase_ext_set ext, transfer
-  end
-
   # get all extensions to change
-  def undercase_ext_get(ext)
+  def undercase_ext_get(ext, recurse)
     transfer = Hash.new
     allexts = ext.empty?
     Modder.files.each do |file|
       ext = file.split(".").last if allexts
 
       new = file.sub /#{ext}$/i, ext.downcase
-      next if new == file # no changes
+      next if new == file || ext == file # no changes or extension
 
       transfer[file] = new
     end

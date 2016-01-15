@@ -73,31 +73,3 @@ describe Modname do
   end
 end
 
-=begin
-# parse out arguments
-def parse(args)
-  opts = {:args => []}
-    when "-h", "--help"
-      opts[:cmd] = "help"
-    when "-f"
-      opts[:force] = true
-    when "-r"
-      opts[:recurse] = true
-    when "f", "file"
-      opts[:cmd] = "file"
-    when "e", "ext"
-      opts[:cmd] = "ext"
-    when nil # end of list
-      break
-    when /^-/ # unrecognized option
-      puts "Unrecognized option:" + opt
-      pexit Modname::HelpBanner, 1
-    else # argument to command
-      opts[:args] << opt
-    end
-  end
-
-  opts
-end
-
-=end

@@ -1,7 +1,8 @@
 # parse modname's command line args
 
-require "colored"
 
+require "find"
+require "colored"
 require "modname/banner"
 require "modname/modder"
 require "modname/version"
@@ -19,20 +20,20 @@ class Modname::Driver
   include Modder
   def initialize
     @transfer = {}
+    @options = {}
   end
 
   # parse user arguments
   def run(args)
     opts = parse args
     cmd = opts[:cmd]
-    args.shift
 
     case cmd
     when "ext"
-      exts opts[:args]
+      exts opts
 
     when "file"
-      regex opts[:args]
+      regex opts
 
     when "help"
       puts Modname::VHelpBanner
@@ -48,8 +49,7 @@ class Modname::Driver
 
   # parse out arguments
   def parse(args)
-    opts = {:args => [], :err => [],
-            :force => false, :recurse => false}
+    opts = {:args => [], :err => [], :force => false, :recurse => false}
 
     args.each do |opt|
       case opt
@@ -73,12 +73,6 @@ class Modname::Driver
     end
 
     opts
-  end
-
-  # exit w/ message and system signal
-  def pexit(msg, sig)
-    puts msg
-    exit sig
   end
 end
 
