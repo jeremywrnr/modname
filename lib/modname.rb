@@ -30,10 +30,10 @@ class Modname::Driver
 
     case cmd
     when "ext"
-      exts opts
+      exts opts[:args]
 
     when "file"
-      regex opts
+      regex opts[:args]
 
     when "help"
       puts Modname::VHelpBanner

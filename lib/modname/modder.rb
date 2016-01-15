@@ -11,8 +11,10 @@ module Modder
 
   # rename files based on regular expressions
   def regex(args = [])
-    trans = (args.length == 1 ? "" : args[1])
-    match = args.first
+    match = args.shift
+    trans = args.shift
+    match = "" if match.nil?
+    trans = "" if trans.nil?
 
     Modder.files(@options[:recurse]).each do |file|
       new = file.sub Regexp.new(match), trans
@@ -29,8 +31,10 @@ module Modder
 
   # change one file extension to another's type
   def exts(args = [])
-    trans = args.length <= 1 ? "" : args[1]
-    match = args.first.nil?? "" : args.first
+    match = args.shift
+    trans = args.shift
+    match = "" if match.nil?
+    trans = "" if trans.nil?
 
     if match.empty? && trans.empty? # do all
       undercase_ext
@@ -82,7 +86,8 @@ class << Modder
   # show the status of current files
   def status(transfer)
     if transfer.empty?
-      "No matches found.".yellow
+      puts "No matches found.".yellow
+      exit 1
     else
       puts "Planned file actions:".green
       transfer.each { |o, n| puts "\t#{o} -> #{n.green}" }
