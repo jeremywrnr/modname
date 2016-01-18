@@ -17,9 +17,12 @@ end
 
 class Modname::Driver
   include Modder
+
+  attr_reader :options
+
   def initialize
+    @options = {:force => false, :recurse => false}
     @transfer = {}
-    @options = {}
   end
 
   # parse user arguments
@@ -28,11 +31,11 @@ class Modname::Driver
     cmd = opts[:cmd]
 
     case cmd
-    when "ext"
-      exts opts[:args]
-
     when "file"
       regex opts[:args]
+
+    when "ext"
+      exts opts[:args]
 
     when "help"
       puts Modname::VHelpBanner
@@ -40,34 +43,29 @@ class Modname::Driver
     when "version"
       puts Modname::Version
 
-    when nil
-      puts Modname::HelpBanner
-
     else
-      puts "Unrecognized command: ".red + cmd
+      puts "Unrecognized command: ".red + args.first
       puts Modname::HelpBanner
     end
   end
 
   # parse out arguments
   def parse(args)
-    opts = {:args => [], :err => [], :force => false, :recurse => false}
+    opts = {:cmd => "file", :args => []}
 
     args.each do |opt|
       case opt
       when "-f"
-        opts[:force] = true
+        @options[:force] = true
       when "-r"
-        opts[:recurse] = true
+        @options[:recurse] = true
+      when "-e", "--ext"
+        opts[:cmd] = "ext"
       when "-h", "--help"
         opts[:cmd] = "help"
       when "-v", "--version"
         opts[:cmd] = "version"
-      when "f", "file"
-        opts[:cmd] = "file"
-      when "e", "ext"
-        opts[:cmd] = "ext"
-      else # argument to command
+      else # command argument
         opts[:args] << opt
       end
     end
