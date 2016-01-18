@@ -67,10 +67,6 @@ class Modname::Driver
         opts[:cmd] = "file"
       when "e", "ext"
         opts[:cmd] = "ext"
-      when /^-/ # unrecognized option
-        puts "Unrecognized option: ".red + opt
-        puts Modname::HelpBanner
-        opts[:err] << opt
       else # argument to command
         opts[:args] << opt
       end
