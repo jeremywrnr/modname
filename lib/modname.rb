@@ -16,7 +16,6 @@ end
 
 
 class Modname::Driver
-  VERSION = "0.1"
   include Modder
   def initialize
     @transfer = {}
@@ -37,6 +36,9 @@ class Modname::Driver
 
     when "help"
       puts Modname::VHelpBanner
+
+    when "version"
+      puts Modname::Version
 
     when nil
       puts Modname::HelpBanner
@@ -59,6 +61,8 @@ class Modname::Driver
         opts[:recurse] = true
       when "-h", "--help"
         opts[:cmd] = "help"
+      when "-v", "--version"
+        opts[:cmd] = "version"
       when "f", "file"
         opts[:cmd] = "file"
       when "e", "ext"
