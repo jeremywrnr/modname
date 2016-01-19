@@ -3,7 +3,7 @@ $:.unshift lib unless $:.include?(lib)
 
 
 # helper for rspec
-require "FileUtils"
+require "fileutils"
 require "modname"
 require "find"
 
