@@ -27,25 +27,25 @@ class Modname::Driver
 
   # parse user arguments
   def run(args)
-    opts = parse args
-    cmd = opts[:cmd]
-
-    case cmd
-    when "file"
-      regex opts[:args]
-
-    when "ext"
-      exts opts[:args]
-
-    when "help"
-      puts Modname::VHelpBanner
-
-    when "version"
-      puts Modname::Version
-
-    else
-      puts "Unrecognized command: ".red + args.first
+    if args.empty?
       puts Modname::HelpBanner
+    else
+      opts = parse args
+      cmd = opts[:cmd]
+
+      case cmd
+      when "file"
+        regex opts[:args]
+
+      when "ext"
+        exts opts[:args]
+
+      when "help"
+        puts Modname::VHelpBanner
+
+      when "version"
+        puts Modname::Version
+      end
     end
   end
 

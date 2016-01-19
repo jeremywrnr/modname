@@ -24,7 +24,6 @@ module Modder
       @transfer[file] = new
     end
 
-    # confirm + execute
     Modder.finish @transfer
   end
 
@@ -51,7 +50,6 @@ module Modder
         @transfer[file] = new
       end
 
-      # confirm + execute
       Modder.finish @transfer
     end
   end
@@ -59,7 +57,7 @@ module Modder
   # top level wrapper for exts
   def undercase_ext(ext = "")
     transfer = Modder.undercase_ext_get ext, @options[:recurse]
-    Modder.undercase_ext_set ext, transfer
+    Modder.undercase_ext_set ext, transfer, @options[:force]
   end
 end
 
@@ -87,7 +85,6 @@ class << Modder
   def status(transfer)
     if transfer.empty?
       puts "No matches found.".yellow
-      exit 1
     else
       puts "Planned file actions:".green
       transfer.each { |o, n| puts "\t#{o} -> #{n.green}" }
@@ -96,19 +93,18 @@ class << Modder
 
   # rename all files
   def execute(transfer)
-    transfer.each { |o, n| Modder.rename o, n }
+    transfer.each { |o, n| Modder.rename o, n unless File.exist? n }
   end
 
 
-  # finish up execution
-  # highest level wrapper
-  def finish(transfer)
-    # warn if no actions to take after processing the files
+  # finish up execution, highest level wrapper
+  def finish(transfer, force = false)
 
-    # print current changes
+    # print changes, return if none
     Modder.status transfer
+    return if transfer.empty?
 
-    if Modder.confirm?
+    if force || Modder.confirm?
       Modder.execute transfer
       puts "Modifications complete."
     else
@@ -149,12 +145,14 @@ class << Modder
   # this involves moving it to a tmp file first, since most file systems are
   # not case sensitive and therefore wont distiniguish between HI and hi.
   # to get around this, we can set HI to HI.hash, then set HI.hash to hi
-  def undercase_ext_set(ext, transfer)
+  def undercase_ext_set(ext, transfer, force = false)
     puts "Lowering extension: ".green + (ext.empty?? "*" : ext)
 
-    # confirm current changes
     Modder.status transfer
-    if Modder.confirm?
+    return if transfer.empty?
+
+    # confirm current changes
+    if force || Modder.confirm?
       final = {}
       temp = {}
 

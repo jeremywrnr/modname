@@ -5,13 +5,27 @@ require "spec_helper"
 describe Modname do
   def parse(str = '') Modname::Driver.new.parse str.split end
   def run(str = '') Modname::Driver.new.run str.split end
+  def get(str = '') Modname::Driver.new end
 
   before "mute program help output" do
-    @mod = Modname::Driver.new
     $muted = true
   end
 
+  context "Runner" do
+    it "should show standard help when given no args" do
+      expect(get.run []).to eq Modname::HelpBanner
+    end
+
+    it "should advanced help when asked for more help" do
+      %w{--help -h}.each { |h| expect(run h).to eq Modname::VHelpBanner }
+    end
+  end
+
   context "Parser" do
+    before "create a testing instance" do
+      @mod = Modname::Driver.new
+    end
+
     it "should give correct help commands" do
       p = parse "--help" # generate hash
       expect(p[:cmd]).to eq "help"
@@ -59,24 +73,6 @@ describe Modname do
       @mod.parse %w{-f -r file joy} # generate hash
       expect(@mod.options[:recurse]).to be true
       expect(@mod.options[:force]).to be true
-    end
-  end
-
-  context "Runner" do
-    it "should show standard help when given no args" do
-      expect(run).to eq Modname::HelpBanner
-    end
-
-    it "should advanced help when asked for more help" do
-      ["--help", "-h"].each do |help|
-        expect(run help).to eq Modname::VHelpBanner
-      end
-    end
-
-    it "should refuse unrecognized flags" do
-      ["-goo?-gaah??", "-world -goo?", "--hello"].each do |cmd|
-        expect(run cmd).to eq Modname::HelpBanner
-      end
     end
   end
 end
