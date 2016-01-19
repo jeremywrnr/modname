@@ -17,6 +17,7 @@ Gem::Specification.new do |g|
   g.license     = "MIT"
 
   g.add_dependency "colored", ">= 1.2"
+  g.add_development_dependency "rake"
   g.add_development_dependency "ronn"
   g.add_development_dependency "rspec"
   g.add_development_dependency "rspec-mocks"
