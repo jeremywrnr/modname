@@ -22,7 +22,7 @@ module Modder
       @transfer[file] = new
     end
 
-    Modder.finish @transfer
+    Modder.finish @transfer, @options[:force]
   end
 
 
@@ -45,7 +45,7 @@ module Modder
         @transfer[file] = new
       end
 
-      Modder.finish @transfer
+      Modder.finish @transfer, @options[:force]
     end
   end
 
@@ -76,9 +76,9 @@ class << Modder
   end
 
   # return a list of files to examine
-  def files(recurse = false)
+  def files(recurse)
     if recurse
-      Find.find(Dir.pwd).select { |f| File.file? f }
+      Dir['**/*'].select { |f| File.file?(f) }
     else
       Dir.entries(Dir.pwd).select { |f| File.file? f }
     end
@@ -97,12 +97,12 @@ class << Modder
 
   # rename all files
   def execute(transfer)
-    transfer.each { |o, n| Modder.rename o, n unless File.exist? n }
+    transfer.each { |o, n| Modder.rename o, n }
   end
 
 
   # finish up execution, highest level wrapper
-  def finish(transfer, force = false)
+  def finish(transfer, force)
 
     # print changes, return if none
     Modder.status transfer
@@ -149,7 +149,7 @@ class << Modder
   # this involves moving it to a tmp file first, since most file systems are
   # not case sensitive and therefore wont distiniguish between HI and hi.
   # to get around this, we can set HI to HI.hash, then set HI.hash to hi
-  def undercase_ext_set(ext, transfer, force = false)
+  def undercase_ext_set(ext, transfer, force)
     puts "Lowering extension: ".green + (ext.empty?? "*" : ext)
 
     Modder.status transfer

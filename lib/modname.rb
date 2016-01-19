@@ -1,7 +1,6 @@
 # parse modname's command line args
 
 
-require "find"
 require "colored"
 require "modname/banner"
 require "modname/modder"
