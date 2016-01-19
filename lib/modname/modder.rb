@@ -4,6 +4,7 @@
 
 # any module including modder should implement:
 # @transfer => hash of file transfers to occur
+# @options => hash with :recurse and :force
 
 
 # extensions
@@ -11,10 +12,7 @@ module Modder
 
   # rename files based on regular expressions
   def regex(args = [])
-    match = args.shift
-    trans = args.shift
-    match = "" if match.nil?
-    trans = "" if trans.nil?
+    match, trans = Modder.parse args
 
     Modder.files(@options[:recurse]).each do |file|
       new = file.sub Regexp.new(match), trans
@@ -30,10 +28,7 @@ module Modder
 
   # change one file extension to another's type
   def exts(args = [])
-    match = args.shift
-    trans = args.shift
-    match = "" if match.nil?
-    trans = "" if trans.nil?
+    match, trans = Modder.parse args
 
     if match.empty? && trans.empty? # do all
       undercase_ext
@@ -64,6 +59,15 @@ end
 
 # module methods
 class << Modder
+
+  # return appropriate args, repairing if undefined
+  def parse(args)
+    match = args.shift
+    trans = args.shift
+    match = "" if match.nil?
+    trans = "" if trans.nil?
+    return match, trans
+  end
 
   # double check transformations
   def confirm?
