@@ -1,11 +1,12 @@
-require 'rake'
-require 'rspec/core/rake_task'
+require "rake"
+require "rspec/core/rake_task"
+require_relative "lib/modname"
 
 task :default => :spec
 
 # gem name, version
-g = 'modname'
-v = '0.1'
+g = "modname"
+v = Modname::Version
 
 task :build do
 	system "gem build #{g}.gemspec"
@@ -13,7 +14,7 @@ task :build do
 end
 
 task :clean do
-  puts 'cleaning gems...'
+  puts "cleaning gems..."
 	system "rm -fv *.gem"
 end
 
@@ -27,8 +28,8 @@ end
 
 RSpec::Core::RakeTask.new(:spec) do |rake|
   rake.verbose = true
-  rake.rspec_opts = '--color '
-  #rake.rspec_opts << '--format documentation'
-  rake.rspec_opts << '--format progress'
+  rake.rspec_opts = "--color "
+  rake.rspec_opts << "--format documentation"
+  #rake.rspec_opts << "--format progress"
 end
 
