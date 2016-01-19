@@ -1,4 +1,4 @@
-lib = File.expand_path("../../lib/", __FILE__)
+lib = File.expand_path("../../../lib/", __FILE__)
 $:.unshift lib unless $:.include?(lib)
 
 
@@ -6,7 +6,6 @@ $:.unshift lib unless $:.include?(lib)
 require "FileUtils"
 require "modname"
 require "find"
-
 
 # hacky mute-able puts
 $muted = true

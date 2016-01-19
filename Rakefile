@@ -1,6 +1,6 @@
-require "rake"
+require_relative "lib/modname/version"
 require "rspec/core/rake_task"
-require_relative "lib/modname"
+require "rake"
 
 task :default => :spec
 
