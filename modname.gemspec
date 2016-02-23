@@ -13,7 +13,7 @@ Gem::Specification.new do |g|
   g.date        = Time.now.strftime("%Y-%m-%d")
   g.summary     = 'a versatile file naming tool.'
   g.description = 'easily rename groups of files with regex replacements.'
-  g.homepage    = 'http://github.com/jeremywrnr/booker'
+  g.homepage    = 'http://github.com/jeremywrnr/modname'
   g.license     = "MIT"
 
   g.add_dependency "colored", ">= 1.2"
