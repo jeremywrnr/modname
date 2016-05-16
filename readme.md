@@ -4,6 +4,7 @@ modname
 
 [![Gem Version](https://badge.fury.io/rb/modname.svg)](https://badge.fury.io/rb/modname)
 [![Build Status](https://travis-ci.org/jeremywrnr/modname.svg?branch=master)](https://travis-ci.org/jeremywrnr/modname)
+[![Code Climate](https://codeclimate.com/github/jeremywrnr/modname/badges/gpa.svg)](https://codeclimate.com/github/jeremywrnr/modname)
 [![MIT](https://img.shields.io/npm/l/alt.svg?style=flat)](http://jeremywrnr.com/mit-license)
 
 
