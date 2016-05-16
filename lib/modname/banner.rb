@@ -5,6 +5,7 @@ Modname::HelpBanner = <<-HELP
 #{'Usage:'.cyan} modname [options] <match> [transform]
 
 #{'modname | rename files, fast'.cyan}
+#{'--------┼----------------------------'.cyan}
      -e #{'|'.cyan} change file extensions
      -f #{'|'.cyan} force run; don't pre-check
      -r #{'|'.cyan} run modname recursively

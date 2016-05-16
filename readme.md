@@ -76,4 +76,5 @@ This uses `rspec` and `rake` to run a suite of unit tests. To run the suite:
 
 - only try to rename filenames, not folders on recursive calls
 - figure out whats up with the extension globbing
+- apply optionally to directories as well
 
