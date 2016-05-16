@@ -38,7 +38,7 @@ module Modder
 
     else # move match extension to targeted
       Modder.files(@options[:recurse]).each do |file|
-        new = file.sub /#{match}$/ , trans
+        new = file.sub(/#{match}$/, trans)
 
         next if new == file # no changes
 
@@ -136,7 +136,7 @@ class << Modder
     Modder.files(recurse).each do |file|
       ext = file.split(".").last if allexts
 
-      new = file.sub /#{ext}$/i , ext.downcase
+      new = file.sub(/#{ext}$/i, ext.downcase)
       next if new == file || ext == file # no changes or extension
 
       transfer[file] = new
