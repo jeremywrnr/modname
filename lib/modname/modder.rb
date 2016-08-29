@@ -96,20 +96,20 @@ class << Modder
   end
 
   # rename all files
-  def execute(transfer)
-    transfer.each { |o, n| Modder.rename o, n }
+  def execute(transfer, force=false)
+    transfer.each { |o, n| Modder.rename o, n, force }
   end
 
 
   # finish up execution, highest level wrapper
-  def finish(transfer, force)
+  def finish(transfer, force=false)
 
     # print changes, return if none
     Modder.status transfer
     return if transfer.empty?
 
     if force || Modder.confirm?
-      Modder.execute transfer
+      Modder.execute transfer, force
       puts "Modifications complete."
     else
       puts "No modifications done."
@@ -117,10 +117,16 @@ class << Modder
   end
 
   # try to rename a given file
-  def rename(o, n)
+  def rename(o, n, force)
     begin
       exist = "#{'Error:'.red} target file |#{n.green}| already exists"
-      (File.exist? n) ? raise(exist) : File.rename(o, n)
+
+      # only overwrite when forced
+      if (!force) && File.exist?(n)
+        raise(exist)
+      else
+        File.rename(o, n)
+      end
 
     rescue => e
       puts "#{'Error:'.red} could not move |#{o.red}| to |#{n.green}|"
