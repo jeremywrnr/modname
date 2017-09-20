@@ -54,6 +54,12 @@ examples
 Note: <required> [optional]
 ```
 
+### examples
+
+    modname -e jpeg jpg # change all jpeg file exts to jpg
+    modname -e # change all file extensions to lowercase
+    modname '(.*)' 'jeremy \1' # use grouping to prepend string
+
 
 ## development / testing
 
