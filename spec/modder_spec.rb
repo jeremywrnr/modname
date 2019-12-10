@@ -17,7 +17,7 @@ describe Modder do
   # recursively getting all files from the current directory (testing)
   def files
     Find.find(Dir.pwd).select { |f| File.file? f }
-    .map { |f| f.sub Dir.pwd << "/" , "" }
+      .map { |f| f.sub Dir.pwd << "/" , "" }
   end
 
   before "setup test directory" do
@@ -104,6 +104,21 @@ describe Modder do
       run.exts ["JPG", "txt"] # move to txt
       nfiles = ["a.TXT", "b.txt", "c.TXT"]
       expect(files).to eq nfiles
+    end
+  end
+
+
+  context "Folders" do
+    before "create test folders" do
+      expect(false).to eq true
+    end
+
+    it "should work on folders when given -d flag" do
+      expect(false).to eq true
+    end
+
+    it "should ignore folders without -d flag" do
+      expect(false).to eq true
     end
   end
 
