@@ -5,8 +5,15 @@ $:.unshift lib unless $:.include?(lib)
 # Start SimpleCov for test coverage (if available and requested)
 if ENV['COVERAGE']
   begin
+    require 'coverage'
     require 'simplecov'
     require_relative 'coverage'
+    
+    # Workaround for SimpleCov 0.22.0 bug with Ruby 3.3
+    # SimpleCov looks for Coverage in its own namespace instead of global
+    class << SimpleCov
+      const_set(:Coverage, ::Coverage) unless const_defined?(:Coverage)
+    end
     
     SimpleCov.start do
       add_filter '/spec/'
