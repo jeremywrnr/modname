@@ -28,11 +28,14 @@ dev:
 
 # Run tests and show coverage in terminal
 cov:
-    @COVERAGE=1 rspec --color --format progress 2>/dev/null || true
+    @COVERAGE=1 rspec --color --format progress
 
 # Show HTML test coverage
 cov-html: cov
     open coverage/index.html
+
+# Run CI checks
+ci: spec
 
 # List all available recipes
 help:
