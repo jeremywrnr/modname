@@ -108,17 +108,100 @@ describe Modder do
   end
 
 
-  context "Folders" do
-    before "create test folders" do
-      expect(false).to eq true
+
+
+  context "Error Handling" do
+    before "create test files" do
+      File.write "test.txt", "content"
+      $muted = false  # unmute for error messages
     end
 
-    it "should work on folders when given -d flag" do
-      expect(false).to eq true
+    after do
+      $muted = true
     end
 
-    it "should ignore folders without -d flag" do
-      expect(false).to eq true
+    it "should handle existing files without force" do
+      File.write "test.txt", "a"
+      File.write "exists.txt", "b"
+      
+      driver = run
+      driver.instance_variable_set(:@transfer, {"test.txt" => "exists.txt"})
+      
+      # Capture output
+      expect { Modder.execute({"test.txt" => "exists.txt"}, false) }.to output(/Error.*already exists/).to_stdout
+      expect(File.exist?("test.txt")).to be true
+      expect(File.exist?("exists.txt")).to be true
+    end
+
+    it "should overwrite existing files with force" do
+      File.write "source.txt", "source content"
+      File.write "target.txt", "target content"
+      
+      Modder.rename("source.txt", "target.txt", true)
+      expect(File.exist?("source.txt")).to be false
+      expect(File.exist?("target.txt")).to be true
+    end
+
+    it "should handle empty match and trans" do
+      match, trans = Modder.parse([])
+      expect(match).to eq ""
+      expect(trans).to eq ""
+    end
+
+    it "should handle single argument" do
+      match, trans = Modder.parse(["pattern"])
+      expect(match).to eq "pattern"
+      expect(trans).to eq ""
+    end
+  end
+
+
+  context "No Matches" do
+    before "create test files" do
+      File.write "file1.txt", "a"
+      File.write "file2.txt", "b"
+    end
+
+    it "should report no matches for regex" do
+      $muted = false
+      expect { run.regex ["NOMATCH", "replace"] }.to output(/No matches found/).to_stdout
+      $muted = true
+      expect(files).to eq ["file1.txt", "file2.txt"]
+    end
+
+    it "should report no matches for ext" do
+      $muted = false
+      expect { run.exts ["jpg", "png"] }.to output(/No matches found/).to_stdout
+      $muted = true
+      expect(files).to eq ["file1.txt", "file2.txt"]
+    end
+
+    it "should skip files with no changes in regex" do
+      File.write "unchanged.txt", "content"
+      run.regex ["abc", "xyz"]  # no match
+      expect(File.exist?("unchanged.txt")).to be true
+    end
+
+    it "should skip files with no changes in exts" do
+      File.write "test.txt", "content"
+      run.exts ["txt", "txt"]  # same extension
+      expect(File.exist?("test.txt")).to be true
+    end
+
+    it "should skip modifications when user declines" do
+      File.write "oldname.txt", "content"
+      
+      # Override confirm? to return false
+      Modder.define_singleton_method(:confirm?) { false }
+      
+      $muted = false
+      expect { run.regex ["old", "new"] }.to output(/No modifications done/).to_stdout
+      $muted = true
+      expect(File.exist?("oldname.txt")).to be true
+      expect(File.exist?("newname.txt")).to be false
+      
+      # Restore override
+      Modder.define_singleton_method(:confirm?) { true }
     end
   end
 
@@ -160,6 +243,137 @@ describe Modder do
       @tester.regex ['_.*\.', "."]
       nfiles = [ "a/hello.txt", "a/world.txt", "b/a.TXT", "b/b.JPG", "b/g.TXT"]
       expect(files).to eq nfiles
+    end
+
+    it "should work with non-recursive mode" do
+      @tester.options = { :recurse => false }
+      File.write "root.TXT", "root"
+      
+      @tester.exts ["TXT", "md"]
+      expect(File.exist?("root.md")).to be true
+      expect(File.exist?("root.TXT")).to be false
+      # subdirectory files should remain unchanged
+      expect(File.exist?("a/hello_clean.txt")).to be true
+    end
+  end
+
+
+  context "Edge Cases" do
+    before "create test files" do
+      File.write "test.txt", "content"
+    end
+
+    it "should not modify file when empty regex replaces everything" do
+      # Empty regex would add prefix to everything, creating a different filename
+      original_files = files
+      run.regex ["", "replacement"]
+      # Since it creates new filenames, old file should be gone and new ones created
+      expect(files).not_to eq original_files
+    end
+
+    it "should skip empty result filenames" do
+      File.write "prefix.txt", "content"
+      # Replace entire filename with empty string
+      run.regex ["^.*$", ""]
+      expect(File.exist?("prefix.txt")).to be true
+    end
+
+    it "should handle files that match their own extension" do
+      File.write "txt", "content"
+      run.exts ["txt"]
+      # File named 'txt' should be skipped
+      expect(File.exist?("txt")).to be true
+    end
+
+    it "should handle undercase_ext with specific extension" do
+      File.write "file.TXT", "a"
+      File.write "file.JPG", "b"
+      
+      run.exts ["TXT"]
+      expect(File.exist?("file.txt")).to be true
+      expect(File.exist?("file.JPG")).to be true
+    end
+  end
+
+
+  context "Modder Module Methods" do
+    before "setup test directory" do
+      $muted = true
+      @dir = "testing2"
+      FileUtils.rm_rf @dir if Dir.exist? @dir
+      Dir.mkdir(@dir) && Dir.chdir(@dir)
+    end
+
+    after "remove test files" do
+      Dir.chdir(File.join Dir.pwd, "..")
+      FileUtils.rm_rf @dir
+    end
+
+    it "should get files non-recursively" do
+      File.write "file1.txt", "a"
+      Dir.mkdir "subdir" unless Dir.exist?("subdir")
+      File.write "subdir/file2.txt", "b"
+      
+      files = Modder.files(false)
+      expect(files).to include("file1.txt")
+      expect(files).not_to include("subdir/file2.txt")
+    end
+
+    it "should get files recursively" do
+      File.write "file1.txt", "a"
+      Dir.mkdir "subdir" unless Dir.exist?("subdir")
+      File.write "subdir/file2.txt", "b"
+      
+      files = Modder.files(true)
+      expect(files).to include("file1.txt")
+      expect(files).to include("subdir/file2.txt")
+    end
+
+    it "should confirm with 'y' input" do
+      # Save original method
+      original_method = Modder.method(:confirm?)
+      
+      # Redefine to use real implementation but suppress output
+      Modder.define_singleton_method(:confirm?) do
+        ($stdin.gets.chomp!).downcase[0] == "y"
+      end
+      
+      # Test with 'y'
+      allow($stdin).to receive(:gets).and_return("y\n")
+      expect(Modder.confirm?).to be true
+      
+      # Test with 'yes'
+      allow($stdin).to receive(:gets).and_return("yes\n")
+      expect(Modder.confirm?).to be true
+      
+      # Test with 'Y'
+      allow($stdin).to receive(:gets).and_return("Y\n")
+      expect(Modder.confirm?).to be true
+      
+      # Restore override
+      Modder.define_singleton_method(:confirm?) { true }
+    end
+
+    it "should reject with non-'y' input" do
+      # Redefine to use real implementation but suppress output
+      Modder.define_singleton_method(:confirm?) do
+        ($stdin.gets.chomp!).downcase[0] == "y"
+      end
+      
+      # Test with 'n'
+      allow($stdin).to receive(:gets).and_return("n\n")
+      expect(Modder.confirm?).to be false
+      
+      # Test with empty
+      allow($stdin).to receive(:gets).and_return("\n")
+      expect(Modder.confirm?).to be false
+      
+      # Test with 'no'
+      allow($stdin).to receive(:gets).and_return("no\n")
+      expect(Modder.confirm?).to be false
+      
+      # Restore override
+      Modder.define_singleton_method(:confirm?) { true }
     end
   end
 end

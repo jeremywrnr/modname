@@ -18,9 +18,9 @@ Gem::Specification.new do |g|
 
   g.add_dependency "colored", ">= 1.2"
   g.add_development_dependency "rake"
-  g.add_development_dependency "ronn"
   g.add_development_dependency "rspec"
   g.add_development_dependency "rspec-mocks"
+  g.add_development_dependency "simplecov", "~> 0.21.2"
 
   g.files        = Dir.glob("{bin,lib}/**/*") + %w(readme.md)
   g.executables = ['modname']

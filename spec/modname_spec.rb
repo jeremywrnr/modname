@@ -19,6 +19,36 @@ describe Modname do
     it "should advanced help when asked for more help" do
       %w{--help -h}.each { |h| expect(run h).to eq Modname::VHelpBanner }
     end
+
+    it "should show version when asked" do
+      %w{--version -v}.each do |v|
+        expect(run v).to eq Modname::Version
+      end
+    end
+
+    it "should call ext command with -e flag" do
+      driver = get
+      expect(driver).to receive(:exts).with(["txt", "md"])
+      driver.run ["-e", "txt", "md"]
+    end
+
+    it "should call ext command with --ext flag" do
+      driver = get
+      expect(driver).to receive(:exts).with(["jpg"])
+      driver.run ["--ext", "jpg"]
+    end
+
+    it "should call regex command with file arguments" do
+      driver = get
+      expect(driver).to receive(:regex).with(["old", "new"])
+      driver.run ["old", "new"]
+    end
+
+    it "should call regex command with flags" do
+      driver = get
+      expect(driver).to receive(:regex).with(["pattern", "replacement"])
+      driver.run ["-f", "pattern", "replacement"]
+    end
   end
 
   context "Parser" do

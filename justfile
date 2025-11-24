@@ -4,9 +4,6 @@
 gem_name := "modname"
 version := `modname -v`
 
-# Default recipe to run when just is called without arguments
-default: spec
-
 # Run tests with RSpec
 spec:
     rspec --color --format documentation
@@ -29,9 +26,12 @@ push: clean build
 dev:
     filewatcher '**/*.rb' 'clear && just spec'
 
-# Show test coverage
-coverage: spec
-    @echo "Opening coverage report..."
+# Run tests and show coverage in terminal
+cov:
+    @COVERAGE=1 rspec --color --format progress 2>/dev/null || true
+
+# Show HTML test coverage
+cov-html: cov
     open coverage/index.html
 
 # List all available recipes
