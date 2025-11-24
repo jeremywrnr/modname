@@ -23,12 +23,15 @@ jobs:
         ruby-version: ${{ matrix.ruby-version }}
         bundler-cache: true
     
-    - name: Run tests
-      run: bundle exec rspec --color --format documentation
+    - name: Install just
+      uses: extractions/setup-just@v2
+    
+    - name: Run CI tests
+      run: just spec
     
     - name: Run tests with coverage
       if: matrix.ruby-version == '3.3'
-      run: COVERAGE=1 bundle exec rspec --color --format progress
+      run: just cov
     
     - name: Upload coverage
       if: matrix.ruby-version == '3.3'

@@ -34,6 +34,9 @@ cov:
 cov-html: cov
     open coverage/index.html
 
+# Run CI checks
+ci: spec
+
 # List all available recipes
 help:
     @just --list
