@@ -8,20 +8,21 @@ $LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
 if ENV['COVERAGE']
   begin
     require 'simplecov'
-    require_relative 'coverage'
 
+    # Use explicit ./ to avoid stdlib conflict
+    require_relative './spec_coverage'
+    
     SimpleCov.start do
       add_filter '/spec/'
     end
-  rescue LoadError, NameError => e
+    
+    # SimpleCov's at_exit runs first, then ours
+    SimpleCov.at_exit do
+      SimpleCov.result.format!
+      display_coverage_summary
+    end
+  rescue LoadError => e
     warn "SimpleCov not available: #{e.message}"
-  end
-
-  # Display coverage summary at exit
-  at_exit do
-    display_coverage_summary
-  rescue StandardError
-    nil
   end
 end
 

@@ -18,11 +18,11 @@ Gem::Specification.new do |g|
   g.homepage    = 'http://github.com/jeremywrnr/modname'
   g.license     = 'MIT'
 
-  g.add_dependency 'colored', '>= 1.2'
-  g.add_development_dependency 'rake'
-  g.add_development_dependency 'rspec'
-  g.add_development_dependency 'rspec-mocks'
-  g.add_development_dependency 'simplecov', '~> 0.21.2'
+  g.add_dependency "colored", ">= 1.2"
+  g.add_development_dependency "rake"
+  g.add_development_dependency "rspec"
+  g.add_development_dependency "rspec-mocks"
+  g.add_development_dependency "simplecov", "~> 0.22.0"
 
   g.files = Dir.glob('{bin,lib}/**/*') + %w[readme.md]
   g.executables = ['modname']
