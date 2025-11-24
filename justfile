@@ -8,6 +8,10 @@ version := `modname -v`
 spec:
     rspec --color --format documentation
 
+# Format code with RuboCop
+format:
+    rubocop -A
+
 # Build and install the gem
 build:
     gem build {{gem_name}}.gemspec
