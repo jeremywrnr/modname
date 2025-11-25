@@ -2,7 +2,7 @@
 
 # Variables
 gem_name := "modname"
-version := `modname -v`
+version := `modname -v 2>/dev/null || echo "0.0.0"`
 
 # Run tests with RSpec
 spec:
@@ -39,7 +39,7 @@ cov-html: cov
     open coverage/index.html
 
 # Run CI checks
-ci: spec lint
+ci: spec cov lint
 
 # List all available recipes
 help:

@@ -2,39 +2,40 @@ name: CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     strategy:
       matrix:
-        ruby-version: ['3.1', '3.2', '3.3']
-    
+        ruby-version: ["3.1", "3.2", "3.3"]
+
     steps:
-    - uses: actions/checkout@v4
-    
-    - name: Set up Ruby
-      uses: ruby/setup-ruby@v1
-      with:
-        ruby-version: ${{ matrix.ruby-version }}
-        bundler-cache: true
-    
-    - name: Run tests
-      run: bundle exec rspec --color --format documentation
-    
-    - name: Run tests with coverage
-      if: matrix.ruby-version == '3.3'
-      env:
-        COVERAGE: 1
-      run: bundle exec rspec --color --format progress
-    
-    - name: Upload coverage
-      if: matrix.ruby-version == '3.3'
-      uses: actions/upload-artifact@v4
-      with:
-        name: coverage-report
-        path: coverage/
+      - uses: actions/checkout@v4
+
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true
+
+      - name: Install just
+        uses: extractions/setup-just@v2
+
+      - name: Run tests
+        run: just spec
+
+      - name: Run CI check (spec, lint, coverage)
+        if: matrix.ruby-version == '3.3'
+        run: just cov
+
+      - name: Upload coverage
+        if: matrix.ruby-version == '3.3'
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage/
