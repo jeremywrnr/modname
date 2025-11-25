@@ -2,7 +2,7 @@
 
 # Variables
 gem_name := "modname"
-version := `modname -v 2>/dev/null || echo "0.0.0"`
+version := `ruby -r./lib/modname/version.rb -e 'puts Modname::VERSION'`
 
 # Run tests with RSpec
 spec:
@@ -27,7 +27,7 @@ clean:
     rm -fv *.gem
 
 # Clean, build, and push gem to RubyGems
-push: clean build ci
+push: ci clean build
     gem push {{gem_name}}-{{version}}.gem
 
 # Run tests and show coverage in terminal
