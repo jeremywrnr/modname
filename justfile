@@ -6,11 +6,15 @@ version := `modname -v 2>/dev/null || echo "0.0.0"`
 
 # Run tests with RSpec
 spec:
-    rspec --color --format documentation
+    bundle exec rspec --color --format documentation
+
+# Development mode with file watching
+dev:
+    fw -f '**/*.rb' -c 'just spec'
 
 # Format/lint code with RuboCop
 lint:
-    rubocop -A modname.gemspec lib/ bin/
+    bundle exec rubocop -A modname.gemspec lib/ bin/
 
 # Build and install the gem
 build:
@@ -26,13 +30,9 @@ clean:
 push: clean build ci
     gem push {{gem_name}}-{{version}}.gem
 
-# Development mode with file watching
-dev:
-    filewatcher '**/*.rb' 'clear && just spec'
-
 # Run tests and show coverage in terminal
 cov:
-    @COVERAGE=1 rspec --color --format progress
+    @COVERAGE=1 bundle exec rspec --color --format progress
 
 # Show HTML test coverage
 cov-html: cov
