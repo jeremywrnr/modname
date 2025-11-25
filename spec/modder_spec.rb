@@ -4,12 +4,14 @@
 
 require 'spec_helper'
 
-# no prompt for test
-def Modder.confirm?
-  true
-end
-
 describe Modder do
+  # Override confirm? for these tests to avoid prompts
+  before(:all) do
+    def Modder.confirm?
+      true
+    end
+  end
+
   # getting a class instance of modname
   def run
     Modname::Driver.new
@@ -200,6 +202,25 @@ describe Modder do
       # Restore override
       Modder.define_singleton_method(:confirm?) { true }
     end
+
+    it 'should skip ext modifications when user declines' do
+      File.write 'test.TXT', 'content'
+
+      # Ensure force mode is off and override confirm? to return false
+      run.options[:force] = false
+      Modder.define_singleton_method(:confirm?) { false }
+
+      $muted = false
+      expect { run.exts ['TXT'] }.to output(/No modifications done/).to_stdout
+      $muted = true
+      
+      # File should remain uppercase
+      expect(File.exist?('test.TXT')).to be true
+
+      # Restore overrides
+      run.options[:force] = false
+      Modder.define_singleton_method(:confirm?) { true }
+    end
   end
 
   context 'Recursion' do
@@ -323,53 +344,6 @@ describe Modder do
       files = Modder.files(true)
       expect(files).to include('file1.txt')
       expect(files).to include('subdir/file2.txt')
-    end
-
-    it "should confirm with 'y' input" do
-      # Save original method
-      Modder.method(:confirm?)
-
-      # Redefine to use real implementation but suppress output
-      Modder.define_singleton_method(:confirm?) do
-        $stdin.gets.chomp.downcase[0] == 'y'
-      end
-
-      # Test with 'y'
-      allow($stdin).to receive(:gets).and_return("y\n")
-      expect(Modder.confirm?).to be true
-
-      # Test with 'yes'
-      allow($stdin).to receive(:gets).and_return("yes\n")
-      expect(Modder.confirm?).to be true
-
-      # Test with 'Y'
-      allow($stdin).to receive(:gets).and_return("Y\n")
-      expect(Modder.confirm?).to be true
-
-      # Restore override
-      Modder.define_singleton_method(:confirm?) { true }
-    end
-
-    it "should reject with non-'y' input" do
-      # Redefine to use real implementation but suppress output
-      Modder.define_singleton_method(:confirm?) do
-        $stdin.gets.chomp.downcase[0] == 'y'
-      end
-
-      # Test with 'n'
-      allow($stdin).to receive(:gets).and_return("n\n")
-      expect(Modder.confirm?).to be false
-
-      # Test with empty
-      allow($stdin).to receive(:gets).and_return("\n")
-      expect(Modder.confirm?).to be false
-
-      # Test with 'no'
-      allow($stdin).to receive(:gets).and_return("no\n")
-      expect(Modder.confirm?).to be false
-
-      # Restore override
-      Modder.define_singleton_method(:confirm?) { true }
     end
   end
 end
