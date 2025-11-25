@@ -329,7 +329,7 @@ describe Modder do
 
       # Redefine to use real implementation but suppress output
       Modder.define_singleton_method(:confirm?) do
-        $stdin.gets.chomp!.downcase[0] == 'y'
+        $stdin.gets.chomp.downcase[0] == 'y'
       end
 
       # Test with 'y'
@@ -351,7 +351,7 @@ describe Modder do
     it "should reject with non-'y' input" do
       # Redefine to use real implementation but suppress output
       Modder.define_singleton_method(:confirm?) do
-        $stdin.gets.chomp!.downcase[0] == 'y'
+        $stdin.gets.chomp.downcase[0] == 'y'
       end
 
       # Test with 'n'
