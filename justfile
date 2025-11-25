@@ -10,7 +10,7 @@ spec:
 
 # Format/lint code with RuboCop
 lint:
-    rubocop -A lib/ bin/
+    rubocop -A modname.gemspec lib/ bin/
 
 # Build and install the gem
 build:

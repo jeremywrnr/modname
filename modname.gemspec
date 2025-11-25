@@ -26,5 +26,4 @@ Gem::Specification.new do |g|
   g.files = Dir.glob('{bin,lib}/**/*') + %w[readme.md]
   g.executables = ['modname']
   g.require_path = 'lib'
-  g.metadata['rubygems_mfa_required'] = 'true'
 end
