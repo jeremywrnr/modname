@@ -1,0 +1,20 @@
+# RuboCop configuration for modname
+
+AllCops:
+  NewCops: enable
+  SuggestExtensions: false
+  TargetRubyVersion: 3.3
+
+# Allow slightly longer methods for clarity
+Metrics/MethodLength:
+  Max: 20
+
+# Allow slightly higher complexity for transformation logic
+Metrics/AbcSize:
+  Max: 25
+
+# Allow single-letter parameter names for simple pass-through methods
+Naming/MethodParameterName:
+  MinNameLength: 1
+  AllowedNames:
+    - x

@@ -10,7 +10,7 @@ Gem::Specification.new do |g|
   g.email       = 'jeremywrnr@gmail.com'
 
   g.name        = 'modname'
-  g.version     = Modname::Version
+  g.version     = Modname::VERSION
   g.platform    = Gem::Platform::RUBY
   g.date        = Time.now.strftime('%Y-%m-%d')
   g.summary     = 'a versatile file naming tool.'

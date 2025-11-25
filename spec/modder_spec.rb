@@ -124,7 +124,7 @@ describe Modder do
       driver.instance_variable_set(:@transfer, { 'test.txt' => 'exists.txt' })
 
       # Capture output
-      expect { Modder.execute({ 'test.txt' => 'exists.txt' }, false) }.to output(/Error.*already exists/).to_stdout
+      expect { Modder.execute({ 'test.txt' => 'exists.txt' }, force: false) }.to output(/Error.*already exists/).to_stdout
       expect(File.exist?('test.txt')).to be true
       expect(File.exist?('exists.txt')).to be true
     end

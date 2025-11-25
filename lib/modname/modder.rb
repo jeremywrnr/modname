@@ -21,7 +21,7 @@ module Modder
       @transfer[file] = new
     end
 
-    Modder.finish @transfer, @options[:force]
+    Modder.finish @transfer, force: @options[:force]
   end
 
   # change one file extension to another's type
@@ -43,7 +43,7 @@ module Modder
         @transfer[file] = new
       end
 
-      Modder.finish @transfer, @options[:force]
+      Modder.finish @transfer, force: @options[:force]
     end
   end
 
@@ -91,18 +91,18 @@ class << Modder
   end
 
   # rename all files
-  def execute(transfer, force = false)
+  def execute(transfer, force: false)
     transfer.each { |o, n| Modder.rename o, n, force }
   end
 
   # finish up execution, highest level wrapper
-  def finish(transfer, force = false)
+  def finish(transfer, force: false)
     # print changes, return if none
     Modder.status transfer
     return if transfer.empty?
 
     if force || Modder.confirm?
-      Modder.execute transfer, force
+      Modder.execute transfer, force: force
       puts 'Modifications complete.'
     else
       puts 'No modifications done.'
@@ -110,15 +110,15 @@ class << Modder
   end
 
   # try to rename a given file
-  def rename(o, n, force)
-    exist = "#{'Error:'.red} target file |#{n.green}| already exists"
+  def rename(old, new, force)
+    exist = "#{'Error:'.red} target file |#{new.green}| already exists"
 
     # only overwrite when forced
-    raise(exist) if (!force) && File.exist?(n)
+    raise(exist) if (!force) && File.exist?(new)
 
-    File.rename(o, n)
+    File.rename(old, new)
   rescue StandardError => e
-    puts "#{'Error:'.red} could not move |#{o.red}| to |#{n.green}|"
+    puts "#{'Error:'.red} could not move |#{old.red}| to |#{new.green}|"
     puts e.message
   end
 

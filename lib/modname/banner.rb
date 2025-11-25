@@ -1,8 +1,9 @@
 # frozen_string_literal: true
 
+# Modname is a versatile file naming tool for renaming groups of files
 module Modname end
 
-Modname::HelpBanner = <<~HELP.freeze
+Modname::HELP_BANNER = <<~HELP.freeze
   #{'Usage:'.cyan} modname [options] <match> [transform]
 
   #{'modname | rename files, fast'.cyan}
@@ -13,8 +14,8 @@ Modname::HelpBanner = <<~HELP.freeze
        -h #{'|'.cyan} show more help, examples
 HELP
 
-Modname::VHelpBanner = <<~VHELP.freeze
-  #{Modname::HelpBanner}
+Modname::V_HELP_BANNER = <<~VHELP.freeze
+  #{Modname::HELP_BANNER}
   #{'commands'.cyan}
     file names
       [match] [trans] => modify a pattern in filenames

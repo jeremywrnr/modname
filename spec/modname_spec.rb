@@ -15,16 +15,16 @@ describe Modname do
 
   context 'Runner' do
     it 'should show standard help when given no args' do
-      expect(get.run([])).to eq Modname::HelpBanner
+      expect(get.run([])).to eq Modname::HELP_BANNER
     end
 
     it 'should advanced help when asked for more help' do
-      %w[--help -h].each { |h| expect(run(h)).to eq Modname::VHelpBanner }
+      %w[--help -h].each { |h| expect(run(h)).to eq Modname::V_HELP_BANNER }
     end
 
     it 'should show version when asked' do
       %w[--version -v].each do |v|
-        expect(run(v)).to eq Modname::Version
+        expect(run(v)).to eq Modname::VERSION
       end
     end
 

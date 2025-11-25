@@ -7,14 +7,17 @@ require 'modname/banner'
 require 'modname/modder'
 require 'modname/version'
 
+# Modname is a versatile file naming tool for renaming groups of files
 module Modname
   # defining Modname.run
   class << self
-    def run(x) = Driver.new.run(x)
+    def run(args) = Driver.new.run(args)
   end
 end
 
+# Modname module containing the CLI driver
 module Modname
+  # Driver class handles command-line argument parsing and execution
   class Driver
     include Modder
 
@@ -28,7 +31,7 @@ module Modname
     # parse user arguments
     def run(args)
       if args.empty?
-        puts Modname::HelpBanner
+        puts Modname::HELP_BANNER
       else
         opts = parse args
         cmd = opts[:cmd]
@@ -41,10 +44,10 @@ module Modname
           exts opts[:args]
 
         when 'help'
-          puts Modname::VHelpBanner
+          puts Modname::V_HELP_BANNER
 
         when 'version'
-          puts Modname::Version
+          puts Modname::VERSION
         end
       end
     end
