@@ -1,15 +1,14 @@
+# frozen_string_literal: true
+
 # modder, the modname helper
 # generally: o-old, n-new
-
 
 # any module including modder should implement:
 # @transfer => hash of file transfers to occur
 # @options => hash with :recurse and :force
 
-
 # extensions
 module Modder
-
   # rename files based on regular expressions
   def regex(args = [])
     match, trans = Modder.parse args
@@ -17,14 +16,13 @@ module Modder
     Modder.files(@options[:recurse]).each do |file|
       new = file.sub Regexp.new(match), trans
 
-      next if (new == file || new == "") # no changes
+      next if new == file || new == '' # no changes
 
       @transfer[file] = new
     end
 
-    Modder.finish @transfer, @options[:force]
+    Modder.finish @transfer, force: @options[:force]
   end
-
 
   # change one file extension to another's type
   def exts(args = [])
@@ -45,34 +43,32 @@ module Modder
         @transfer[file] = new
       end
 
-      Modder.finish @transfer, @options[:force]
+      Modder.finish @transfer, force: @options[:force]
     end
   end
 
   # top level wrapper for exts
-  def undercase_ext(ext = "")
+  def undercase_ext(ext = '')
     transfer = Modder.undercase_ext_get ext, @options[:recurse]
     Modder.undercase_ext_set ext, transfer, @options[:force]
   end
 end
 
-
 # module methods
 class << Modder
-
   # return appropriate args, repairing if undefined
   def parse(args)
     match = args.shift
     trans = args.shift
-    match = "" if match.nil?
-    trans = "" if trans.nil?
-    return match, trans
+    match = '' if match.nil?
+    trans = '' if trans.nil?
+    [match, trans]
   end
 
   # double check transformations
   def confirm?
-    print "Are these changes ok? [yN] "
-    ($stdin.gets.chomp!).downcase[0] == "y"
+    print 'Are these changes ok? [yN] '
+    $stdin.gets.chomp.downcase[0] == 'y'
   end
 
   # return a list of files to examine
@@ -84,63 +80,54 @@ class << Modder
     end
   end
 
-
   # show the status of current files
   def status(transfer)
     if transfer.empty?
-      puts "No matches found.".yellow
+      puts 'No matches found.'.yellow
     else
-      puts "Planned file actions:".green
+      puts 'Planned file actions:'.green
       transfer.each { |o, n| puts "\t#{o} -> #{n.green}" }
     end
   end
 
   # rename all files
-  def execute(transfer, force=false)
+  def execute(transfer, force: false)
     transfer.each { |o, n| Modder.rename o, n, force }
   end
 
-
   # finish up execution, highest level wrapper
-  def finish(transfer, force=false)
-
+  def finish(transfer, force: false)
     # print changes, return if none
     Modder.status transfer
     return if transfer.empty?
 
     if force || Modder.confirm?
-      Modder.execute transfer, force
-      puts "Modifications complete."
+      Modder.execute transfer, force: force
+      puts 'Modifications complete.'
     else
-      puts "No modifications done."
+      puts 'No modifications done.'
     end
   end
 
   # try to rename a given file
-  def rename(o, n, force)
-    begin
-      exist = "#{'Error:'.red} target file |#{n.green}| already exists"
+  def rename(old, new, force)
+    exist = "#{'Error:'.red} target file |#{new.green}| already exists"
 
-      # only overwrite when forced
-      if (!force) && File.exist?(n)
-        raise(exist)
-      else
-        File.rename(o, n)
-      end
+    # only overwrite when forced
+    raise(exist) if (!force) && File.exist?(new)
 
-    rescue => e
-      puts "#{'Error:'.red} could not move |#{o.red}| to |#{n.green}|"
-      puts e.message
-    end
+    File.rename(old, new)
+  rescue StandardError => e
+    puts "#{'Error:'.red} could not move |#{old.red}| to |#{new.green}|"
+    puts e.message
   end
-
 
   # get all extensions to change
   def undercase_ext_get(ext, recurse)
-    transfer = Hash.new
+    transfer = {}
     allexts = ext.empty?
     Modder.files(recurse).each do |file|
-      ext = file.split(".").last if allexts
+      ext = file.split('.').last if allexts
 
       new = file.sub(/#{ext}$/i, ext.downcase)
       next if new == file || ext == file # no changes or extension
@@ -156,7 +143,7 @@ class << Modder
   # not case sensitive and therefore wont distiniguish between HI and hi.
   # to get around this, we can set HI to HI.hash, then set HI.hash to hi
   def undercase_ext_set(ext, transfer, force)
-    puts "Lowering extension: ".green + (ext.empty?? "*" : ext)
+    puts 'Lowering extension: '.green + (ext.empty? ? '*' : ext)
 
     Modder.status transfer
     return if transfer.empty?
@@ -175,10 +162,9 @@ class << Modder
 
       Modder.execute temp
       Modder.execute final
-      puts "Modifications complete."
+      puts 'Modifications complete.'
     else
-      puts "No modifications done."
+      puts 'No modifications done.'
     end
   end
 end
-

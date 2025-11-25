@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
+# frozen_string_literal: true
 
-require "modname"
+require 'modname'
 
 # modname by jeremy warner
 # easily rename files/extensions with ruby regex.
 
 Modname.run(ARGV)
-
