@@ -6,7 +6,7 @@
 require 'json'
 require 'colored'
 
-def display_coverage_summary
+def display_coverage_summary(fail_under: nil)
   $muted = false # Ensure output is not suppressed
   coverage_file = 'coverage/.resultset.json'
 
@@ -64,7 +64,16 @@ def display_coverage_summary
   end
 
   puts '=' * 80
+
+  # Check if coverage meets the threshold
+  if fail_under && overall < fail_under
+    puts "FAILED: Coverage #{overall}% is below required #{fail_under}%".red
+    exit 1
+  end
 end
 
 # Only run if called directly
-display_coverage_summary if __FILE__ == $PROGRAM_NAME
+if __FILE__ == $PROGRAM_NAME
+  threshold = ARGV[0]&.to_f
+  display_coverage_summary(fail_under: threshold)
+end
