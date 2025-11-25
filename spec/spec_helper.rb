@@ -11,11 +11,11 @@ if ENV['COVERAGE']
 
     # Use explicit ./ to avoid stdlib conflict
     require_relative './spec_coverage'
-    
+
     SimpleCov.start do
       add_filter '/spec/'
     end
-    
+
     # SimpleCov's at_exit runs first, then ours
     SimpleCov.at_exit do
       SimpleCov.result.format!
