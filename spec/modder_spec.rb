@@ -24,7 +24,7 @@ describe Modder do
   before 'setup test directory' do
     $muted = true
     @dir = 'testing'
-    FileUtils.rm_rf @dir if Dir.exist? @dir
+    FileUtils.rm_rf @dir
     Dir.mkdir(@dir) && Dir.chdir(@dir)
   end
 
@@ -124,7 +124,9 @@ describe Modder do
       driver.instance_variable_set(:@transfer, { 'test.txt' => 'exists.txt' })
 
       # Capture output
-      expect { Modder.execute({ 'test.txt' => 'exists.txt' }, force: false) }.to output(/Error.*already exists/).to_stdout
+      expect do
+        Modder.execute({ 'test.txt' => 'exists.txt' }, force: false)
+      end.to output(/Error.*already exists/).to_stdout
       expect(File.exist?('test.txt')).to be true
       expect(File.exist?('exists.txt')).to be true
     end
@@ -294,7 +296,7 @@ describe Modder do
     before 'setup test directory' do
       $muted = true
       @dir = 'testing2'
-      FileUtils.rm_rf @dir if Dir.exist? @dir
+      FileUtils.rm_rf @dir
       Dir.mkdir(@dir) && Dir.chdir(@dir)
     end
 
@@ -305,7 +307,7 @@ describe Modder do
 
     it 'should get files non-recursively' do
       File.write 'file1.txt', 'a'
-      Dir.mkdir 'subdir' unless Dir.exist?('subdir')
+      FileUtils.mkdir_p 'subdir'
       File.write 'subdir/file2.txt', 'b'
 
       files = Modder.files(false)
@@ -315,7 +317,7 @@ describe Modder do
 
     it 'should get files recursively' do
       File.write 'file1.txt', 'a'
-      Dir.mkdir 'subdir' unless Dir.exist?('subdir')
+      FileUtils.mkdir_p 'subdir'
       File.write 'subdir/file2.txt', 'b'
 
       files = Modder.files(true)

@@ -12,7 +12,6 @@ Gem::Specification.new do |g|
   g.name        = 'modname'
   g.version     = Modname::VERSION
   g.platform    = Gem::Platform::RUBY
-  g.date        = Time.now.strftime('%Y-%m-%d')
   g.summary     = 'a versatile file naming tool.'
   g.description = 'easily rename groups of files with regex replacements.'
   g.homepage    = 'http://github.com/jeremywrnr/modname'
@@ -27,4 +26,5 @@ Gem::Specification.new do |g|
   g.files = Dir.glob('{bin,lib}/**/*') + %w[readme.md]
   g.executables = ['modname']
   g.require_path = 'lib'
+  g.metadata['rubygems_mfa_required'] = 'true'
 end

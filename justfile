@@ -23,7 +23,7 @@ clean:
     rm -fv *.gem
 
 # Clean, build, and push gem to RubyGems
-push: clean build
+push: clean build ci
     gem push {{gem_name}}-{{version}}.gem
 
 # Development mode with file watching
@@ -39,7 +39,7 @@ cov-html: cov
     open coverage/index.html
 
 # Run CI checks
-ci: spec
+ci: spec lint
 
 # List all available recipes
 help:

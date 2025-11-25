@@ -10,7 +10,7 @@ if ENV['COVERAGE']
     require 'simplecov'
 
     # Use explicit ./ to avoid stdlib conflict
-    require_relative './spec_coverage'
+    require_relative 'spec_coverage'
 
     SimpleCov.start do
       add_filter '/spec/'
