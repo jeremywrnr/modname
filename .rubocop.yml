@@ -12,9 +12,3 @@ Metrics/MethodLength:
 # Allow slightly higher complexity for transformation logic
 Metrics/AbcSize:
   Max: 25
-
-# Allow single-letter parameter names for simple pass-through methods
-Naming/MethodParameterName:
-  MinNameLength: 1
-  AllowedNames:
-    - x
