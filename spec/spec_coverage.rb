@@ -24,12 +24,17 @@ def display_coverage_summary(fail_under: nil)
 
     total = 0
     covered = 0
+    uncovered_lines = []
 
-    lines['lines'].each do |line_coverage|
+    lines['lines'].each_with_index do |line_coverage, idx|
       next unless line_coverage.is_a?(Integer)
 
       total += 1
-      covered += 1 if line_coverage > 0
+      if line_coverage > 0
+        covered += 1
+      else
+        uncovered_lines << idx + 1
+      end
     end
 
     pct = total > 0 ? (covered.to_f / total * 100).round(2) : 0
@@ -37,7 +42,8 @@ def display_coverage_summary(fail_under: nil)
       name: file.sub("#{Dir.pwd}/", ''),
       pct: pct,
       covered: covered,
-      total: total
+      total: total,
+      uncovered_lines: uncovered_lines
     }
   end
 
@@ -61,6 +67,11 @@ def display_coverage_summary(fail_under: nil)
                     pct_str.red
                   end
     puts "#{colored_pct}  #{f[:name]}"
+    
+    # Show uncovered lines if any
+    unless f[:uncovered_lines].empty?
+      puts "         Uncovered lines: #{f[:uncovered_lines].join(', ')}".red
+    end
   end
 
   puts '=' * 80

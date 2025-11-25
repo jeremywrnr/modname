@@ -70,11 +70,11 @@ try running `gem install bundler`. Once that is done:
 Now, we should be able to build the gem locally. This will build the local
 modname gem and link it in your path, so you can playing around with `modname`.
 
-    rake build
+    just build
 
-This uses `rspec` and `rake` to run a suite of unit tests. To run the suite:
+This uses `rspec` and `just` to run a suite of unit tests. To run the suite:
 
-    rake
+    just spec
 
 
 ## todos
