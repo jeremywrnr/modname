@@ -264,15 +264,80 @@ describe Modder do
       expect(files).to eq nfiles
     end
 
-    it 'should not rename folders, only filenames, on recursive calls' do
-      Dir.mkdir 'cats'
-      File.write 'cats/cellphone.txt', 'x'
+    context 'with a folder that matches the pattern' do
+      before 'create a matching folder' do
+        Dir.mkdir 'cats'
+        File.write 'cats/cellphone.txt', 'x'
+      end
 
+      it 'should not rename folders, only filenames, by default' do
+        @tester.regex %w[c g]
+
+        expect(File.directory?('cats')).to be true
+        expect(File.exist?('cats/gellphone.txt')).to be true
+        expect(File.exist?('cats/cellphone.txt')).to be false
+      end
+
+      it 'should rename folders too when the dirs option is enabled' do
+        @tester.options = { recurse: true, dirs: true }
+        @tester.regex %w[c g]
+
+        expect(File.directory?('cats')).to be false
+        expect(File.directory?('gats')).to be true
+        expect(File.exist?('gats/gellphone.txt')).to be true
+      end
+    end
+
+    it 'should rename nested folders deepest-first so paths never go stale' do
+      Dir.mkdir 'c'
+      Dir.mkdir 'c/c'
+      File.write 'c/c/c_clean.txt', 'x'
+
+      @tester.options = { recurse: true, dirs: true }
       @tester.regex %w[c g]
 
-      expect(File.directory?('cats')).to be true
-      expect(File.exist?('cats/gellphone.txt')).to be true
-      expect(File.exist?('cats/cellphone.txt')).to be false
+      expect(File.directory?('g')).to be true
+      expect(File.directory?('g/g')).to be true
+      expect(File.exist?('g/g/g_clean.txt')).to be true
+    end
+
+    it 'should rename top-level folders in non-recursive mode when dirs is enabled' do
+      Dir.mkdir 'cars'
+
+      @tester.options = { recurse: false, dirs: true }
+      @tester.regex %w[c g]
+
+      expect(File.directory?('cars')).to be false
+      expect(File.directory?('gars')).to be true
+      # subdirectory contents are untouched, since this run is non-recursive
+      expect(File.exist?('a/hello_clean.txt')).to be true
+    end
+
+    it 'should apply -e extension renaming to folder names when dirs is enabled' do
+      Dir.mkdir 'MyFolder.OLD'
+      Dir.mkdir 'plaindir'
+
+      @tester.options = { recurse: false, dirs: true }
+      @tester.exts %w[OLD new]
+
+      expect(File.directory?('MyFolder.OLD')).to be false
+      expect(File.directory?('MyFolder.new')).to be true
+      expect(File.directory?('plaindir')).to be true # no extension, left alone
+    end
+
+    it 'should lowercase folder "extensions" when dirs is enabled, leaving extensionless folders alone' do
+      Dir.mkdir 'Photos.JPG'
+      Dir.mkdir 'plaindir'
+
+      @tester.options = { recurse: false, dirs: true }
+      @tester.exts # lowercase all extensions
+
+      # use an exact-case listing: File.directory? alone can't tell 'Photos.JPG'
+      # from 'Photos.jpg' apart on a case-insensitive filesystem
+      entries = Dir.children(Dir.pwd)
+      expect(entries).to include('Photos.jpg')
+      expect(entries).not_to include('Photos.JPG')
+      expect(entries).to include('plaindir')
     end
 
     it 'should work with non-recursive mode' do

@@ -11,6 +11,7 @@ Modname::HELP_BANNER = <<~HELP.freeze
        -e #{'|'.cyan} change file extensions
        -f #{'|'.cyan} force run; don't pre-check
        -r #{'|'.cyan} run modname recursively
+   --dirs #{'|'.cyan} also rename directory names
        -h #{'|'.cyan} show more help, examples
 HELP
 

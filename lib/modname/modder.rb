@@ -5,7 +5,7 @@
 
 # any module including modder should implement:
 # @transfer => hash of file transfers to occur
-# @options => hash with :recurse and :force
+# @options => hash with :recurse, :force, and :dirs
 
 # extensions
 module Modder
@@ -13,7 +13,7 @@ module Modder
   def regex(args = [])
     match, trans = Modder.parse args
 
-    Modder.files(@options[:recurse]).each do |file|
+    Modder.files(@options[:recurse], dirs: @options[:dirs]).each do |file|
       new = Modder.rename_base(file) do |base|
         result = base.sub Regexp.new(match), trans
         result.empty? ? base : result # no changes
@@ -38,7 +38,7 @@ module Modder
       undercase_ext match
 
     else # move match extension to targeted
-      Modder.files(@options[:recurse]).each do |file|
+      Modder.files(@options[:recurse], dirs: @options[:dirs]).each do |file|
         new = Modder.rename_base(file) { |base| base.sub(/#{match}$/, trans) }
 
         next if new.nil?
@@ -52,7 +52,7 @@ module Modder
 
   # top level wrapper for exts
   def undercase_ext(ext = '')
-    transfer = Modder.undercase_ext_get ext, @options[:recurse]
+    transfer = Modder.undercase_ext_get ext, @options[:recurse], dirs: @options[:dirs]
     Modder.undercase_ext_set ext, transfer, @options[:force]
   end
 end
@@ -74,13 +74,16 @@ class << Modder
     $stdin.gets.chomp.downcase[0] == 'y'
   end
 
-  # return a list of files to examine
-  def files(recurse)
-    if recurse
-      Dir['**/*'].select { |f| File.file?(f) }
-    else
-      Dir.entries(Dir.pwd).select { |f| File.file? f }
-    end
+  # return a list of files (and, optionally, directories) to examine.
+  # files always come first; directories are sorted deepest-first so a
+  # parent is only renamed after everything nested inside it
+  def files(recurse, dirs: false)
+    paths = recurse ? Dir['**/*'] : Dir.entries(Dir.pwd).reject { |f| ['.', '..'].include?(f) }
+
+    found = paths.select { |f| File.file?(f) }
+    return found unless dirs
+
+    found + paths.select { |f| File.directory?(f) }.sort_by { |f| -f.count('/') }
   end
 
   # apply a transformation to a file's basename only, preserving its directory.
@@ -105,7 +108,9 @@ class << Modder
     end
   end
 
-  # rename all files
+  # rename all files. must run in insertion order: when directories are
+  # included, Modder.files places them deepest-first so a parent is never
+  # renamed before what's nested inside it
   def execute(transfer, force: false)
     transfer.each { |o, n| Modder.rename o, n, force }
   end
@@ -138,10 +143,10 @@ class << Modder
   end
 
   # get all extensions to change
-  def undercase_ext_get(ext, recurse)
+  def undercase_ext_get(ext, recurse, dirs: false)
     transfer = {}
     allexts = ext.empty?
-    Modder.files(recurse).each do |file|
+    Modder.files(recurse, dirs: dirs).each do |file|
       new = Modder.rename_base(file) do |base|
         cur_ext = allexts ? base.split('.').last : ext
         next base if cur_ext == base # no extension to change
@@ -172,7 +177,8 @@ class << Modder
       final = {}
       temp = {}
 
-      # create hash temp map
+      # create hash temp map; iterating `transfer` preserves its deepest-first
+      # directory ordering into both `temp` and `final`
       transfer.each do |k, v|
         tempfile = (v.hash * v.object_id).abs.to_s
         final[tempfile] = v
