@@ -77,8 +77,3 @@ This uses `rspec` and `just` to run a suite of unit tests. To run the suite:
 
     just spec
 
-
-## todos
-
-- figure out whats up with the extension globbing
-
