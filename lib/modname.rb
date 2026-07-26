@@ -3,9 +3,9 @@
 # parse modname's command line args
 
 require 'colored'
-require 'modname/banner'
-require 'modname/modder'
-require 'modname/version'
+require_relative 'modname/banner'
+require_relative 'modname/modder'
+require_relative 'modname/version'
 
 # Modname is a versatile file naming tool for renaming groups of files
 module Modname
@@ -13,10 +13,7 @@ module Modname
   class << self
     def run(args) = Driver.new.run(args)
   end
-end
 
-# Modname module containing the CLI driver
-module Modname
   # Driver class handles command-line argument parsing and execution
   class Driver
     include Modder

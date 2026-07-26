@@ -1,9 +1,5 @@
 # frozen_string_literal: true
 
-# Adjust load path to include the lib directory
-lib = File.expand_path('../../lib', __dir__)
-$LOAD_PATH.unshift lib unless $LOAD_PATH.include?(lib)
-
 # Start SimpleCov for test coverage (if available and requested)
 if ENV['COVERAGE']
   begin
