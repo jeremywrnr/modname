@@ -340,6 +340,28 @@ describe Modder do
       expect(entries).to include('plaindir')
     end
 
+    it 'should correctly land a file whose own parent folder is renamed in the same run' do
+      Dir.mkdir 'Photos.JPG'
+      File.write 'Photos.JPG/data.TXT', 'x'
+
+      @tester.options = { recurse: true, dirs: true }
+      @tester.exts # lowercase all extensions, folders and files alike
+
+      expect(Dir.exist?('Photos.jpg')).to be true
+      expect(File.exist?('Photos.jpg/data.txt')).to be true
+      # nothing should be left behind stranded under a numeric temp name
+      expect(Dir.children(Dir.pwd).grep(/\A\d+\z/)).to be_empty
+    end
+
+    it 'should not treat dotfolders like .git as rename targets in non-recursive mode' do
+      Dir.mkdir '.git'
+
+      @tester.options = { recurse: false, dirs: true }
+      @tester.regex %w[g x]
+
+      expect(Dir.exist?('.git')).to be true
+    end
+
     it 'should work with non-recursive mode' do
       @tester.options = { recurse: false }
       File.write 'root.TXT', 'root'
@@ -420,6 +442,15 @@ describe Modder do
       files = Modder.files(true)
       expect(files).to include('file1.txt')
       expect(files).to include('subdir/file2.txt')
+    end
+
+    it 'should skip broken symlinks instead of raising' do
+      File.write 'file1.txt', 'a'
+      File.symlink 'nonexistent_target', 'broken_link'
+
+      files = Modder.files(false, dirs: true)
+      expect(files).to include('file1.txt')
+      expect(files).not_to include('broken_link')
     end
   end
 end

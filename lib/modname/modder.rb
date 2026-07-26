@@ -76,14 +76,36 @@ class << Modder
 
   # return a list of files (and, optionally, directories) to examine.
   # files always come first; directories are sorted deepest-first so a
-  # parent is only renamed after everything nested inside it
+  # parent is only renamed after everything nested inside it.
+  # dotfiles/dotdirs (.git, etc.) are always excluded, matching Dir['**/*']'s
+  # default behavior in the recursive case
   def files(recurse, dirs: false)
-    paths = recurse ? Dir['**/*'] : Dir.entries(Dir.pwd).reject { |f| ['.', '..'].include?(f) }
+    paths = recurse ? Dir['**/*'] : Dir.entries(Dir.pwd).reject { |f| f.start_with?('.') }
+    found, folders = Modder.classify(paths)
 
-    found = paths.select { |f| File.file?(f) }
     return found unless dirs
 
-    found + paths.select { |f| File.directory?(f) }.sort_by { |f| -f.count('/') }
+    found + folders.sort_by { |f| -f.count('/') }
+  end
+
+  # split paths into [files, directories]; a single stat covers both checks
+  # per path, skipping entries that vanished mid-scan or are broken symlinks
+  def classify(paths)
+    paths.each_with_object([[], []]) do |f, (fs, ds)|
+      stat = Modder.safe_stat(f)
+      next unless stat
+
+      fs << f if stat.file?
+      ds << f if stat.directory?
+    end
+  end
+
+  # stat a path, returning nil (instead of raising) for entries that
+  # disappeared mid-scan or are broken symlinks
+  def safe_stat(file)
+    File.stat(file)
+  rescue Errno::ENOENT
+    nil
   end
 
   # apply a transformation to a file's basename only, preserving its directory.
@@ -178,7 +200,7 @@ class << Modder
       temp = {}
 
       # create hash temp map; iterating `transfer` preserves its deepest-first
-      # directory ordering into both `temp` and `final`
+      # directory ordering, which `temp` needs to safely rename originals away
       transfer.each do |k, v|
         tempfile = (v.hash * v.object_id).abs.to_s
         final[tempfile] = v
@@ -186,7 +208,10 @@ class << Modder
       end
 
       Modder.execute temp
-      Modder.execute final
+      # unlike `temp`, this restore pass needs shallowest-target-first order:
+      # a renamed directory must land at its final path before any renamed
+      # file nested inside it tries to land at a path through that directory
+      Modder.execute(final.sort_by { |_temp, target| target.count('/') })
       puts 'Modifications complete.'
     else
       puts 'No modifications done.'
