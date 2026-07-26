@@ -14,12 +14,14 @@ module Modder
     match, trans = Modder.parse args
 
     Modder.files(@options[:recurse]).each do |file|
-      dir, base = Modder.split_path(file)
-      new_base = base.sub Regexp.new(match), trans
+      new = Modder.rename_base(file) do |base|
+        result = base.sub Regexp.new(match), trans
+        result.empty? ? base : result # no changes
+      end
 
-      next if new_base == base || new_base == '' # no changes
+      next if new.nil?
 
-      @transfer[file] = Modder.join_path(dir, new_base)
+      @transfer[file] = new
     end
 
     Modder.finish @transfer, force: @options[:force]
@@ -37,12 +39,11 @@ module Modder
 
     else # move match extension to targeted
       Modder.files(@options[:recurse]).each do |file|
-        dir, base = Modder.split_path(file)
-        new_base = base.sub(/#{match}$/, trans)
+        new = Modder.rename_base(file) { |base| base.sub(/#{match}$/, trans) }
 
-        next if new_base == base # no changes
+        next if new.nil?
 
-        @transfer[file] = Modder.join_path(dir, new_base)
+        @transfer[file] = new
       end
 
       Modder.finish @transfer, force: @options[:force]
@@ -82,15 +83,16 @@ class << Modder
     end
   end
 
-  # split a path into its directory and basename; dir is nil when there is none
-  def split_path(file)
-    dir = File.dirname(file)
-    dir == '.' ? [nil, File.basename(file)] : [dir, File.basename(file)]
-  end
+  # apply a transformation to a file's basename only, preserving its directory.
+  # the block receives the basename and returns a new basename; returning it
+  # unchanged means no rename should happen, in which case nil is returned
+  def rename_base(file)
+    dir, base = File.split(file)
+    new_base = yield base
 
-  # rejoin a directory and basename produced by split_path
-  def join_path(dir, base)
-    dir ? File.join(dir, base) : base
+    return nil if new_base == base
+
+    dir == '.' ? new_base : File.join(dir, new_base)
   end
 
   # show the status of current files
@@ -140,13 +142,16 @@ class << Modder
     transfer = {}
     allexts = ext.empty?
     Modder.files(recurse).each do |file|
-      dir, base = Modder.split_path(file)
-      ext = base.split('.').last if allexts
+      new = Modder.rename_base(file) do |base|
+        cur_ext = allexts ? base.split('.').last : ext
+        next base if cur_ext == base # no extension to change
 
-      new_base = base.sub(/#{ext}$/i, ext.downcase)
-      next if new_base == base || ext == base # no changes or extension
+        base.sub(/#{cur_ext}$/i, cur_ext.downcase)
+      end
 
-      transfer[file] = Modder.join_path(dir, new_base)
+      next if new.nil?
+
+      transfer[file] = new
     end
 
     transfer
