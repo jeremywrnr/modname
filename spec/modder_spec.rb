@@ -264,6 +264,17 @@ describe Modder do
       expect(files).to eq nfiles
     end
 
+    it 'should not rename folders, only filenames, on recursive calls' do
+      Dir.mkdir 'cats'
+      File.write 'cats/cellphone.txt', 'x'
+
+      @tester.regex %w[c g]
+
+      expect(File.directory?('cats')).to be true
+      expect(File.exist?('cats/gellphone.txt')).to be true
+      expect(File.exist?('cats/cellphone.txt')).to be false
+    end
+
     it 'should work with non-recursive mode' do
       @tester.options = { recurse: false }
       File.write 'root.TXT', 'root'

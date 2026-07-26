@@ -14,11 +14,12 @@ module Modder
     match, trans = Modder.parse args
 
     Modder.files(@options[:recurse]).each do |file|
-      new = file.sub Regexp.new(match), trans
+      dir, base = Modder.split_path(file)
+      new_base = base.sub Regexp.new(match), trans
 
-      next if new == file || new == '' # no changes
+      next if new_base == base || new_base == '' # no changes
 
-      @transfer[file] = new
+      @transfer[file] = Modder.join_path(dir, new_base)
     end
 
     Modder.finish @transfer, force: @options[:force]
@@ -36,11 +37,12 @@ module Modder
 
     else # move match extension to targeted
       Modder.files(@options[:recurse]).each do |file|
-        new = file.sub(/#{match}$/, trans)
+        dir, base = Modder.split_path(file)
+        new_base = base.sub(/#{match}$/, trans)
 
-        next if new == file # no changes
+        next if new_base == base # no changes
 
-        @transfer[file] = new
+        @transfer[file] = Modder.join_path(dir, new_base)
       end
 
       Modder.finish @transfer, force: @options[:force]
@@ -78,6 +80,17 @@ class << Modder
     else
       Dir.entries(Dir.pwd).select { |f| File.file? f }
     end
+  end
+
+  # split a path into its directory and basename; dir is nil when there is none
+  def split_path(file)
+    dir = File.dirname(file)
+    dir == '.' ? [nil, File.basename(file)] : [dir, File.basename(file)]
+  end
+
+  # rejoin a directory and basename produced by split_path
+  def join_path(dir, base)
+    dir ? File.join(dir, base) : base
   end
 
   # show the status of current files
@@ -127,12 +140,13 @@ class << Modder
     transfer = {}
     allexts = ext.empty?
     Modder.files(recurse).each do |file|
-      ext = file.split('.').last if allexts
+      dir, base = Modder.split_path(file)
+      ext = base.split('.').last if allexts
 
-      new = file.sub(/#{ext}$/i, ext.downcase)
-      next if new == file || ext == file # no changes or extension
+      new_base = base.sub(/#{ext}$/i, ext.downcase)
+      next if new_base == base || ext == base # no changes or extension
 
-      transfer[file] = new
+      transfer[file] = Modder.join_path(dir, new_base)
     end
 
     transfer
