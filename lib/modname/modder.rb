@@ -14,9 +14,12 @@ module Modder
     match, trans = Modder.parse args
 
     Modder.files(@options[:recurse]).each do |file|
-      new = file.sub Regexp.new(match), trans
+      new = Modder.rename_base(file) do |base|
+        result = base.sub Regexp.new(match), trans
+        result.empty? ? base : result # no changes
+      end
 
-      next if new == file || new == '' # no changes
+      next if new.nil?
 
       @transfer[file] = new
     end
@@ -36,9 +39,9 @@ module Modder
 
     else # move match extension to targeted
       Modder.files(@options[:recurse]).each do |file|
-        new = file.sub(/#{match}$/, trans)
+        new = Modder.rename_base(file) { |base| base.sub(/#{match}$/, trans) }
 
-        next if new == file # no changes
+        next if new.nil?
 
         @transfer[file] = new
       end
@@ -78,6 +81,18 @@ class << Modder
     else
       Dir.entries(Dir.pwd).select { |f| File.file? f }
     end
+  end
+
+  # apply a transformation to a file's basename only, preserving its directory.
+  # the block receives the basename and returns a new basename; returning it
+  # unchanged means no rename should happen, in which case nil is returned
+  def rename_base(file)
+    dir, base = File.split(file)
+    new_base = yield base
+
+    return nil if new_base == base
+
+    dir == '.' ? new_base : File.join(dir, new_base)
   end
 
   # show the status of current files
@@ -127,10 +142,14 @@ class << Modder
     transfer = {}
     allexts = ext.empty?
     Modder.files(recurse).each do |file|
-      ext = file.split('.').last if allexts
+      new = Modder.rename_base(file) do |base|
+        cur_ext = allexts ? base.split('.').last : ext
+        next base if cur_ext == base # no extension to change
 
-      new = file.sub(/#{ext}$/i, ext.downcase)
-      next if new == file || ext == file # no changes or extension
+        base.sub(/#{cur_ext}$/i, cur_ext.downcase)
+      end
+
+      next if new.nil?
 
       transfer[file] = new
     end
