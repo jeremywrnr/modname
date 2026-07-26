@@ -16,6 +16,7 @@ Gem::Specification.new do |g|
   g.description = 'easily rename groups of files with regex replacements.'
   g.homepage    = 'http://github.com/jeremywrnr/modname'
   g.license     = 'MIT'
+  g.required_ruby_version = '>= 3.0'
 
   g.add_dependency 'colored', '~> 1.2'
   g.add_development_dependency 'rspec'
