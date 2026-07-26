@@ -28,6 +28,7 @@ modname | rename files, fast
      -e | change file extensions
      -f | force run; don't pre-check
      -r | run modname recursively
+ --dirs | also rename directory names
      -h | show more help, examples
 
 commands
@@ -80,5 +81,4 @@ This uses `rspec` and `just` to run a suite of unit tests. To run the suite:
 ## todos
 
 - figure out whats up with the extension globbing
-- apply optionally to directories as well
 

@@ -87,6 +87,7 @@ describe Modname do
       @mod.parse %w[--ext] # generate hash
       expect(@mod.options[:recurse]).to be false
       expect(@mod.options[:force]).to be false
+      expect(@mod.options[:dirs]).to be false
     end
 
     it 'should give correct command flags II' do
@@ -105,6 +106,12 @@ describe Modname do
       @mod.parse %w[-f -r file joy] # generate hash
       expect(@mod.options[:recurse]).to be true
       expect(@mod.options[:force]).to be true
+    end
+
+    it 'should give correct command flags V' do
+      @mod.parse %w[--dirs -r file joy] # generate hash
+      expect(@mod.options[:dirs]).to be true
+      expect(@mod.options[:recurse]).to be true
     end
   end
 end

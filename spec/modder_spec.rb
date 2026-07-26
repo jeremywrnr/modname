@@ -264,15 +264,129 @@ describe Modder do
       expect(files).to eq nfiles
     end
 
-    it 'should not rename folders, only filenames, on recursive calls' do
-      Dir.mkdir 'cats'
-      File.write 'cats/cellphone.txt', 'x'
+    context 'with a folder that matches the pattern' do
+      before 'create a matching folder' do
+        Dir.mkdir 'cats'
+        File.write 'cats/cellphone.txt', 'x'
+      end
 
+      it 'should not rename folders, only filenames, by default' do
+        @tester.regex %w[c g]
+
+        expect(File.directory?('cats')).to be true
+        expect(File.exist?('cats/gellphone.txt')).to be true
+        expect(File.exist?('cats/cellphone.txt')).to be false
+      end
+
+      it 'should rename folders too when the dirs option is enabled' do
+        @tester.options = { recurse: true, dirs: true }
+        @tester.regex %w[c g]
+
+        expect(File.directory?('cats')).to be false
+        expect(File.directory?('gats')).to be true
+        expect(File.exist?('gats/gellphone.txt')).to be true
+      end
+    end
+
+    it 'should rename nested folders deepest-first so paths never go stale' do
+      Dir.mkdir 'c'
+      Dir.mkdir 'c/c'
+      File.write 'c/c/c_clean.txt', 'x'
+
+      @tester.options = { recurse: true, dirs: true }
       @tester.regex %w[c g]
 
-      expect(File.directory?('cats')).to be true
-      expect(File.exist?('cats/gellphone.txt')).to be true
-      expect(File.exist?('cats/cellphone.txt')).to be false
+      expect(File.directory?('g')).to be true
+      expect(File.directory?('g/g')).to be true
+      expect(File.exist?('g/g/g_clean.txt')).to be true
+    end
+
+    it 'should rename top-level folders in non-recursive mode when dirs is enabled' do
+      Dir.mkdir 'cars'
+
+      @tester.options = { recurse: false, dirs: true }
+      @tester.regex %w[c g]
+
+      expect(File.directory?('cars')).to be false
+      expect(File.directory?('gars')).to be true
+      # subdirectory contents are untouched, since this run is non-recursive
+      expect(File.exist?('a/hello_clean.txt')).to be true
+    end
+
+    it 'should apply -e extension renaming to folder names when dirs is enabled' do
+      Dir.mkdir 'MyFolder.OLD'
+      Dir.mkdir 'plaindir'
+
+      @tester.options = { recurse: false, dirs: true }
+      @tester.exts %w[OLD new]
+
+      expect(File.directory?('MyFolder.OLD')).to be false
+      expect(File.directory?('MyFolder.new')).to be true
+      expect(File.directory?('plaindir')).to be true # no extension, left alone
+    end
+
+    it 'should lowercase folder "extensions" when dirs is enabled, leaving extensionless folders alone' do
+      Dir.mkdir 'Photos.JPG'
+      Dir.mkdir 'plaindir'
+
+      @tester.options = { recurse: false, dirs: true }
+      @tester.exts # lowercase all extensions
+
+      # use an exact-case listing: File.directory? alone can't tell 'Photos.JPG'
+      # from 'Photos.jpg' apart on a case-insensitive filesystem
+      entries = Dir.children(Dir.pwd)
+      expect(entries).to include('Photos.jpg')
+      expect(entries).not_to include('Photos.JPG')
+      expect(entries).to include('plaindir')
+    end
+
+    it 'should correctly land a file whose own parent folder is renamed in the same run' do
+      Dir.mkdir 'Photos.JPG'
+      File.write 'Photos.JPG/data.TXT', 'x'
+
+      @tester.options = { recurse: true, dirs: true }
+      @tester.exts # lowercase all extensions, folders and files alike
+
+      expect(Dir.exist?('Photos.jpg')).to be true
+      expect(File.exist?('Photos.jpg/data.txt')).to be true
+      # nothing should be left behind stranded under a numeric temp name
+      expect(Dir.children(Dir.pwd).grep(/\A\d+\z/)).to be_empty
+    end
+
+    it "should splice a renamed parent folder's new name into a nested file's computed target" do
+      # this is checked directly against undercase_ext_get's output, not just
+      # the end filesystem state: on a case-insensitive filesystem (e.g. macOS)
+      # 'Photos.JPG' and 'Photos.jpg' resolve to the same path, so a broken
+      # target string here would still pass an end-to-end-only check
+      Dir.mkdir 'Photos.JPG'
+      File.write 'Photos.JPG/data.TXT', 'x'
+
+      transfer = Modder.undercase_ext_get('', true, dirs: true)
+
+      expect(transfer['Photos.JPG/data.TXT']).to eq 'Photos.jpg/data.txt'
+      expect(transfer['Photos.JPG']).to eq 'Photos.jpg'
+    end
+
+    it 'should cascade ancestor renames through multiple nested folder levels' do
+      Dir.mkdir 'A.X'
+      Dir.mkdir 'A.X/B.Y'
+      File.write 'A.X/B.Y/C.TXT', 'x'
+
+      @tester.options = { recurse: true, dirs: true }
+      @tester.exts # lowercase all extensions, folders and files alike
+
+      expect(Dir.exist?('A.x/B.y')).to be true
+      expect(File.exist?('A.x/B.y/C.txt')).to be true
+      expect(Dir.children(Dir.pwd).grep(/\A\d+\z/)).to be_empty
+    end
+
+    it 'should not treat dotfolders like .git as rename targets in non-recursive mode' do
+      Dir.mkdir '.git'
+
+      @tester.options = { recurse: false, dirs: true }
+      @tester.regex %w[g x]
+
+      expect(Dir.exist?('.git')).to be true
     end
 
     it 'should work with non-recursive mode' do
@@ -355,6 +469,15 @@ describe Modder do
       files = Modder.files(true)
       expect(files).to include('file1.txt')
       expect(files).to include('subdir/file2.txt')
+    end
+
+    it 'should skip broken symlinks instead of raising' do
+      File.write 'file1.txt', 'a'
+      File.symlink 'nonexistent_target', 'broken_link'
+
+      files = Modder.files(false, dirs: true)
+      expect(files).to include('file1.txt')
+      expect(files).not_to include('broken_link')
     end
   end
 end

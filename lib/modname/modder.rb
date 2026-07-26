@@ -5,7 +5,7 @@
 
 # any module including modder should implement:
 # @transfer => hash of file transfers to occur
-# @options => hash with :recurse and :force
+# @options => hash with :recurse, :force, and :dirs
 
 # extensions
 module Modder
@@ -13,7 +13,7 @@ module Modder
   def regex(args = [])
     match, trans = Modder.parse args
 
-    Modder.files(@options[:recurse]).each do |file|
+    Modder.files(@options[:recurse], dirs: @options[:dirs]).each do |file|
       new = Modder.rename_base(file) do |base|
         result = base.sub Regexp.new(match), trans
         result.empty? ? base : result # no changes
@@ -38,7 +38,7 @@ module Modder
       undercase_ext match
 
     else # move match extension to targeted
-      Modder.files(@options[:recurse]).each do |file|
+      Modder.files(@options[:recurse], dirs: @options[:dirs]).each do |file|
         new = Modder.rename_base(file) { |base| base.sub(/#{match}$/, trans) }
 
         next if new.nil?
@@ -52,7 +52,7 @@ module Modder
 
   # top level wrapper for exts
   def undercase_ext(ext = '')
-    transfer = Modder.undercase_ext_get ext, @options[:recurse]
+    transfer = Modder.undercase_ext_get ext, @options[:recurse], dirs: @options[:dirs]
     Modder.undercase_ext_set ext, transfer, @options[:force]
   end
 end
@@ -74,13 +74,38 @@ class << Modder
     $stdin.gets.chomp.downcase[0] == 'y'
   end
 
-  # return a list of files to examine
-  def files(recurse)
-    if recurse
-      Dir['**/*'].select { |f| File.file?(f) }
-    else
-      Dir.entries(Dir.pwd).select { |f| File.file? f }
+  # return a list of files (and, optionally, directories) to examine.
+  # files always come first; directories are sorted deepest-first so a
+  # parent is only renamed after everything nested inside it.
+  # dotfiles/dotdirs (.git, etc.) are always excluded, matching Dir['**/*']'s
+  # default behavior in the recursive case
+  def files(recurse, dirs: false)
+    paths = recurse ? Dir['**/*'] : Dir.entries(Dir.pwd).reject { |f| f.start_with?('.') }
+    found, folders = Modder.classify(paths)
+
+    return found unless dirs
+
+    found + folders.sort_by { |f| -f.count('/') }
+  end
+
+  # split paths into [files, directories]; a single stat covers both checks
+  # per path, skipping entries that vanished mid-scan or are broken symlinks
+  def classify(paths)
+    paths.each_with_object([[], []]) do |f, (fs, ds)|
+      stat = Modder.safe_stat(f)
+      next unless stat
+
+      fs << f if stat.file?
+      ds << f if stat.directory?
     end
+  end
+
+  # stat a path, returning nil (instead of raising) for entries that
+  # disappeared mid-scan or are broken symlinks
+  def safe_stat(file)
+    File.stat(file)
+  rescue Errno::ENOENT
+    nil
   end
 
   # apply a transformation to a file's basename only, preserving its directory.
@@ -105,7 +130,9 @@ class << Modder
     end
   end
 
-  # rename all files
+  # rename all files. must run in insertion order: when directories are
+  # included, Modder.files places them deepest-first so a parent is never
+  # renamed before what's nested inside it
   def execute(transfer, force: false)
     transfer.each { |o, n| Modder.rename o, n, force }
   end
@@ -138,10 +165,10 @@ class << Modder
   end
 
   # get all extensions to change
-  def undercase_ext_get(ext, recurse)
+  def undercase_ext_get(ext, recurse, dirs: false)
     transfer = {}
     allexts = ext.empty?
-    Modder.files(recurse).each do |file|
+    Modder.files(recurse, dirs: dirs).each do |file|
       new = Modder.rename_base(file) do |base|
         cur_ext = allexts ? base.split('.').last : ext
         next base if cur_ext == base # no extension to change
@@ -154,7 +181,24 @@ class << Modder
       transfer[file] = new
     end
 
-    transfer
+    Modder.resolve_dir_renames(transfer)
+  end
+
+  # rewrite each target path so it reflects any ancestor directory renames
+  # also present in this transfer. undercase_ext_set flattens every entry to
+  # a bare temp name before restoring it, which loses the "renaming a
+  # directory carries its contents along" guarantee that Modder.execute
+  # otherwise gets for free from File.rename — so a nested file's precomputed
+  # target must have its renamed ancestor directory's NEW name spliced in
+  def resolve_dir_renames(transfer)
+    dir_renames = transfer.select { |k, _| File.directory?(k) }
+    return transfer if dir_renames.empty?
+
+    transfer.transform_values do |target|
+      dir_renames.reduce(target) do |path, (old_dir, new_dir)|
+        path.start_with?("#{old_dir}/") ? path.sub("#{old_dir}/", "#{new_dir}/") : path
+      end
+    end
   end
 
   # set all extensions to change
@@ -172,7 +216,8 @@ class << Modder
       final = {}
       temp = {}
 
-      # create hash temp map
+      # create hash temp map; iterating `transfer` preserves its deepest-first
+      # directory ordering, which `temp` needs to safely rename originals away
       transfer.each do |k, v|
         tempfile = (v.hash * v.object_id).abs.to_s
         final[tempfile] = v
@@ -180,7 +225,10 @@ class << Modder
       end
 
       Modder.execute temp
-      Modder.execute final
+      # `transfer`'s order is files-then-dirs-deepest-first (see Modder.files);
+      # reversing it gives dirs-shallowest-first-then-files, which is exactly
+      # what's needed to restore ancestors before anything nested inside them
+      Modder.execute(final.to_a.reverse)
       puts 'Modifications complete.'
     else
       puts 'No modifications done.'

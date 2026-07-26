@@ -21,7 +21,7 @@ module Modname
     attr_reader :options
 
     def initialize
-      @options = { force: false, recurse: false }
+      @options = { force: false, recurse: false, dirs: false }
       @transfer = {}
     end
 
@@ -49,24 +49,27 @@ module Modname
       end
     end
 
+    # boolean options toggled by a single flag with no argument
+    FLAGS = { '-f' => :force, '-r' => :recurse, '--dirs' => :dirs }.freeze
+
+    # flags that select which command to run
+    COMMANDS = {
+      '-e' => 'ext', '--ext' => 'ext',
+      '-h' => 'help', '--help' => 'help',
+      '-v' => 'version', '--version' => 'version'
+    }.freeze
+
     # parse out arguments
     def parse(args)
       opts = { cmd: 'file', args: [] }
 
       args.each do |opt|
-        case opt
-        when '-f'
-          @options[:force] = true
-        when '-r'
-          @options[:recurse] = true
-        when '-e', '--ext'
-          opts[:cmd] = 'ext'
-        when '-h', '--help'
-          opts[:cmd] = 'help'
-        when '-v', '--version'
-          opts[:cmd] = 'version'
-        else # command argument
-          opts[:args] << opt
+        if (flag = FLAGS[opt])
+          @options[flag] = true
+        elsif (cmd = COMMANDS[opt])
+          opts[:cmd] = cmd
+        else
+          opts[:args] << opt # command argument
         end
       end
 

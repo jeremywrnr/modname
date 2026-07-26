@@ -22,3 +22,8 @@ Metrics/MethodLength:
 # Allow slightly higher complexity for transformation logic
 Metrics/AbcSize:
   Max: 25
+
+# Modder's singleton class holds all of modname's file/directory-renaming
+# helpers; splitting it up would scatter tightly-related logic for no benefit
+Metrics/ClassLength:
+  Max: 120
