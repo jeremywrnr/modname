@@ -181,7 +181,24 @@ class << Modder
       transfer[file] = new
     end
 
-    transfer
+    Modder.resolve_dir_renames(transfer)
+  end
+
+  # rewrite each target path so it reflects any ancestor directory renames
+  # also present in this transfer. undercase_ext_set flattens every entry to
+  # a bare temp name before restoring it, which loses the "renaming a
+  # directory carries its contents along" guarantee that Modder.execute
+  # otherwise gets for free from File.rename — so a nested file's precomputed
+  # target must have its renamed ancestor directory's NEW name spliced in
+  def resolve_dir_renames(transfer)
+    dir_renames = transfer.select { |k, _| File.directory?(k) }
+    return transfer if dir_renames.empty?
+
+    transfer.transform_values do |target|
+      dir_renames.reduce(target) do |path, (old_dir, new_dir)|
+        path.start_with?("#{old_dir}/") ? path.sub("#{old_dir}/", "#{new_dir}/") : path
+      end
+    end
   end
 
   # set all extensions to change
@@ -208,10 +225,10 @@ class << Modder
       end
 
       Modder.execute temp
-      # unlike `temp`, this restore pass needs shallowest-target-first order:
-      # a renamed directory must land at its final path before any renamed
-      # file nested inside it tries to land at a path through that directory
-      Modder.execute(final.sort_by { |_temp, target| target.count('/') })
+      # `transfer`'s order is files-then-dirs-deepest-first (see Modder.files);
+      # reversing it gives dirs-shallowest-first-then-files, which is exactly
+      # what's needed to restore ancestors before anything nested inside them
+      Modder.execute(final.to_a.reverse)
       puts 'Modifications complete.'
     else
       puts 'No modifications done.'

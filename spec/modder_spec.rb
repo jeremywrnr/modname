@@ -353,6 +353,33 @@ describe Modder do
       expect(Dir.children(Dir.pwd).grep(/\A\d+\z/)).to be_empty
     end
 
+    it "should splice a renamed parent folder's new name into a nested file's computed target" do
+      # this is checked directly against undercase_ext_get's output, not just
+      # the end filesystem state: on a case-insensitive filesystem (e.g. macOS)
+      # 'Photos.JPG' and 'Photos.jpg' resolve to the same path, so a broken
+      # target string here would still pass an end-to-end-only check
+      Dir.mkdir 'Photos.JPG'
+      File.write 'Photos.JPG/data.TXT', 'x'
+
+      transfer = Modder.undercase_ext_get('', true, dirs: true)
+
+      expect(transfer['Photos.JPG/data.TXT']).to eq 'Photos.jpg/data.txt'
+      expect(transfer['Photos.JPG']).to eq 'Photos.jpg'
+    end
+
+    it 'should cascade ancestor renames through multiple nested folder levels' do
+      Dir.mkdir 'A.X'
+      Dir.mkdir 'A.X/B.Y'
+      File.write 'A.X/B.Y/C.TXT', 'x'
+
+      @tester.options = { recurse: true, dirs: true }
+      @tester.exts # lowercase all extensions, folders and files alike
+
+      expect(Dir.exist?('A.x/B.y')).to be true
+      expect(File.exist?('A.x/B.y/C.txt')).to be true
+      expect(Dir.children(Dir.pwd).grep(/\A\d+\z/)).to be_empty
+    end
+
     it 'should not treat dotfolders like .git as rename targets in non-recursive mode' do
       Dir.mkdir '.git'
 

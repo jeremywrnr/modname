@@ -64,10 +64,13 @@ module Modname
       opts = { cmd: 'file', args: [] }
 
       args.each do |opt|
-        next @options[FLAGS[opt]] = true if FLAGS.key?(opt)
-        next opts[:cmd] = COMMANDS[opt] if COMMANDS.key?(opt)
-
-        opts[:args] << opt # command argument
+        if (flag = FLAGS[opt])
+          @options[flag] = true
+        elsif (cmd = COMMANDS[opt])
+          opts[:cmd] = cmd
+        else
+          opts[:args] << opt # command argument
+        end
       end
 
       opts
